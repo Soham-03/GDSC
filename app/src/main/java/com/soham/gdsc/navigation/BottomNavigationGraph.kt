@@ -5,8 +5,7 @@ import androidx.navigation.NavHost
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.soham.gdsc.ui.screen.EventsScreen
-import com.soham.gdsc.ui.screen.HomeScreen
+import com.soham.gdsc.ui.screen.*
 
 @Composable
 fun BottomNavigationGraph(
@@ -17,13 +16,16 @@ fun BottomNavigationGraph(
             HomeScreen()
         }
         composable(route = BottomBarScreen.Events.route){
-            EventsScreen()
+            EventsScreen(navController)
         }
-        composable(route = BottomBarScreen.AddPost.route){
-            HomeScreen()
+        composable(route = BottomBarScreen.Leaderboard.route){
+            LeaderBoardScreen()
         }
-        composable(route = BottomBarScreen.Profile.route){
-            EventsScreen()
+        composable(route = BottomBarScreen.Blogs.route){
+            BlogsScreen()
+        }
+        composable(route = "EventInfo"){
+            EventInfoScreen(eventName = "", eventDate = "", eventTime = "")
         }
     }
 }

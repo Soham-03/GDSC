@@ -1,9 +1,6 @@
 package com.soham.gdsc.ui.component
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
@@ -23,8 +20,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.compose.rememberNavController
 import com.soham.gdsc.ui.theme.ProductSans
 import com.soham.gdsc.R
+import com.soham.gdsc.navigation.BottomBarScreen
+import com.soham.gdsc.ui.theme.cardBackgroundGreen
 import java.net.URL
 
 @Composable
@@ -33,12 +33,19 @@ fun EventSingleRow(
     eventImage: String,
     eventName: String,
     eventDate: String,
-    eventTime: String
+    eventTime: String,
+    onEventClick:() ->Unit
 )
 {
     var height by remember{ mutableStateOf(0.dp) }
     val localDensity = LocalDensity.current
-    Box() {
+    Box(
+        modifier = Modifier
+            .clickable {
+                onEventClick.invoke()
+            }
+    )
+    {
         Column(
             modifier = Modifier
                 .padding(top = 14.dp)
@@ -160,8 +167,8 @@ fun EventSingleRow(
     }
 }
 
-//@Preview
-//@Composable
-//fun EventSingleRowPreview(){
-//    EventSingleRow()
-//}
+@Preview
+@Composable
+fun EventSingleRowPreview(){
+//    EventSingleRow(cardBackgroundGreen, "", "Compose Camp", "28-30 Nov", "10 am - 12-pm")
+}

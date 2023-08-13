@@ -23,6 +23,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.soham.gdsc.R
@@ -43,8 +44,15 @@ fun BottomNavigation(){
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun BottomBar(navController:NavController){
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
+fun BottomBar(navController:NavHostController){
+    val screens = listOf(
+        BottomBarScreen.Home,
+        BottomBarScreen.Events,
+        BottomBarScreen.Leaderboard,
+        BottomBarScreen.Blogs
+    )
+    val navStackBackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = navStackBackEntry?.destination
     var selectedHome by remember { mutableStateOf(true) }
     var selectedEvents by remember { mutableStateOf(false) }
     var selectedLeaderBoard by remember { mutableStateOf(false) }
@@ -76,245 +84,76 @@ fun BottomBar(navController:NavController){
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically
     ){
-        //1
-        Box(
-            modifier = Modifier
-                .background(LightBlue)
-        ){
-            androidx.compose.animation.AnimatedVisibility(
-                visible = selectedHome,
-                enter = scaleIn(),
-                exit = ExitTransition.None,
-            ) {
-                Card(
-                    shape = RoundedCornerShape(100.dp),
-                    border = BorderStroke(2.dp,Color.Black),
-                    backgroundColor = Color.White,
-                    modifier = Modifier
-                        .width(72.dp)
-                        .height(37.dp),
-                    elevation = 0.dp
-                ){}
-            }
-            Card(
-                modifier = Modifier
-                    .width(
-                        if (!selectedHome) {
-                            32.dp
-                        } else {
-                            72.dp
-                        }
-                    )
-                    .height(32.dp)
-                    .animateContentSize(),
-                shape = RoundedCornerShape(100.dp),
-                border = if(selectedHome){BorderStroke(2.dp,Color.Black)} else {
-                    null
-                },
-                backgroundColor = if(selectedHome){ Yellow } else{LightBlue},
-                elevation = 0.dp
-            ){
-                Icon(painter = painterResource(id = R.drawable.ic_home),
-                    contentDescription = "icon",
-                    tint = Color.Black,
-                    modifier = Modifier
-                        .size(32.dp, 32.dp)
-                        .clickable {
-                            if (!selectedHome) {
-                                selectedHome = true
-                                selectedEvents = false
-                                selectedBlogs = false
-                                selectedLeaderBoard = false
-                            }
-                            navController.navigate(BottomBarScreen.Home.route) {
-                                popUpTo(navController.graph.findStartDestination().id)
-                                launchSingleTop = true
-                            }
-                        }
-                        .padding(4.dp)
-                )
+        screens.forEach { screen->
+            if(currentDestination!=null){
+                AddItem(screen = screen, currentDestination =currentDestination , navController = navController)
             }
         }
-        //2
-        Box(
-            modifier = Modifier
-                .background(LightBlue)
-        ){
-            androidx.compose.animation.AnimatedVisibility(
-                visible = selectedEvents,
-                enter = scaleIn(),
-                exit = ExitTransition.None,
-            ) {
-                Card(
-                    shape = RoundedCornerShape(100.dp),
-                    border = BorderStroke(2.dp,Color.Black),
-                    backgroundColor = Color.White,
-                    modifier = Modifier
-                        .width(72.dp)
-                        .height(37.dp),
-                    elevation = 0.dp
-                ){}
-            }
-            Card(
-                shape = RoundedCornerShape(100.dp),
-                border = if(selectedEvents){BorderStroke(2.dp,Color.Black)} else {
-                    null
-                },
-                backgroundColor = if(selectedEvents){ Yellow } else{LightBlue},
-                modifier = Modifier
-                    .width(
-                        if (!selectedEvents) {
-                            32.dp
-                        } else {
-                            72.dp
-                        }
-                    )
-                    .height(32.dp)
-                    .animateContentSize(),
-                elevation = 0.dp
-            ){
-                Icon(painter = painterResource(id = R.drawable.ic_events),
-                    contentDescription = "icon",
-                    tint = Color.Black,
-                    modifier = Modifier
-                        .size(32.dp, 32.dp)
-                        .clickable {
-                            if (!selectedEvents) {
-                                selectedEvents = true
-                                selectedHome = false
-                                selectedBlogs = false
-                                selectedLeaderBoard = false
-                            }
-                            navController.navigate(BottomBarScreen.Events.route) {
-                                popUpTo(navController.graph.findStartDestination().id)
-                                launchSingleTop = true
-                            }
-                        }
-                        .padding(4.dp)
-                )
-            }
-        }
-        //3
-        Box(
-            modifier = Modifier
-                .background(LightBlue)
-        ){
-            androidx.compose.animation.AnimatedVisibility(
-                visible = selectedLeaderBoard,
-                enter = scaleIn(),
-                exit = ExitTransition.None,
-            ) {
-                Card(
-                    shape = RoundedCornerShape(100.dp),
-                    border = BorderStroke(2.dp,Color.Black),
-                    backgroundColor = Color.White,
-                    modifier = Modifier
-                        .width(72.dp)
-                        .height(37.dp),
-                    elevation = 0.dp
-                ){}
-            }
-            Card(
-                shape = RoundedCornerShape(100.dp),
-                border = if(selectedLeaderBoard){BorderStroke(2.dp,Color.Black)} else {
-                    null
-                },
-                backgroundColor = if(selectedLeaderBoard){ Yellow } else{LightBlue},
-                modifier = Modifier
-                    .width(
-                        if (!selectedLeaderBoard) {
-                            32.dp
-                        } else {
-                            72.dp
-                        }
-                    )
-                    .height(32.dp)
-                    .animateContentSize(),
-                elevation = 0.dp
-
-            ){
-                Icon(painter = painterResource(id = R.drawable.ic_leaderboard),
-                    contentDescription = "icon",
-                    tint = Color.Black,
-                    modifier = Modifier
-                        .size(32.dp, 32.dp)
-                        .clickable {
-                            if (!selectedLeaderBoard) {
-                                selectedLeaderBoard = true
-                                selectedEvents = false
-                                selectedBlogs = false
-                                selectedHome = false
-                            }
-                            navController.navigate(BottomBarScreen.Home.route) {
-                                popUpTo(navController.graph.findStartDestination().id)
-                                launchSingleTop = true
-                            }
-                        }
-                        .padding(4.dp)
-                )
-            }
-        }
-        //4
-        Box(
-            modifier = Modifier
-                .background(LightBlue)
-        ){
-            androidx.compose.animation.AnimatedVisibility(
-                visible = selectedBlogs,
-                enter = scaleIn(),
-                exit = ExitTransition.None,
-            ) {
-                Card(
-                    shape = RoundedCornerShape(100.dp),
-                    border = BorderStroke(2.dp,Color.Black),
-                    backgroundColor = Color.White,
-                    modifier = Modifier
-                        .width(72.dp)
-                        .height(37.dp),
-                    elevation = 0.dp
-                ){}
-            }
-            Card(
-                shape = RoundedCornerShape(100.dp),
-                border = if(selectedBlogs){BorderStroke(2.dp,Color.Black)} else {
-                    null
-                },
-                backgroundColor = if(selectedBlogs){ Yellow } else{LightBlue},
-                modifier = Modifier
-                    .width(
-                        if (!selectedBlogs) {
-                            32.dp
-                        } else {
-                            72.dp
-                        }
-                    )
-                    .height(32.dp)
-                    .animateContentSize(),
-                elevation = 0.dp
-            ){
-                Icon(painter = painterResource(id = R.drawable.ic_blogs),
-                    contentDescription = "icon",
-                    tint = Color.Black,
-                    modifier = Modifier
-                        .size(32.dp, 32.dp)
-                        .clickable {
-                            if (!selectedBlogs) {
-                                selectedBlogs = true
-                                selectedEvents = false
-                                selectedHome = false
-                                selectedLeaderBoard = false
-                            }
-                            navController.navigate(BottomBarScreen.Home.route) {
-                                popUpTo(navController.graph.findStartDestination().id)
-                                launchSingleTop = true
-                            }
-                        }
-                        .padding(4.dp)
-                )
-            }
-        }
-
     }
+}
+
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+fun RowScope.AddItem(
+    screen: BottomBarScreen,
+    currentDestination:NavDestination,
+    navController: NavHostController
+){
+    val selected = currentDestination.hierarchy.any{ it.route == screen.route }
+
+    Box(
+        modifier = Modifier
+            .background(LightBlue)
+    ){
+        androidx.compose.animation.AnimatedVisibility(
+            visible = selected,
+            enter = scaleIn(),
+            exit = ExitTransition.None,
+        ) {
+            Card(
+                shape = RoundedCornerShape(100.dp),
+                border = BorderStroke(2.dp,Color.Black),
+                backgroundColor = Color.White,
+                modifier = Modifier
+                    .width(72.dp)
+                    .height(37.dp),
+                elevation = 0.dp
+            ){}
+        }
+        Card(
+            modifier = Modifier
+                .width(
+                    if (!selected) {
+                        32.dp
+                    } else {
+                        72.dp
+                    }
+                )
+                .height(32.dp)
+                .animateContentSize(),
+            shape = RoundedCornerShape(100.dp),
+            border = if(selected){BorderStroke(2.dp,Color.Black)} else {
+                null
+            },
+            backgroundColor = if(selected){ Yellow } else{LightBlue},
+            elevation = 0.dp
+        ){
+            Icon(painter = painterResource(id = screen.icon),
+                contentDescription = "icon",
+                tint = Color.Black,
+                modifier = Modifier
+                    .size(32.dp, 32.dp)
+                    .clickable {
+                        navController.navigate(screen.route) {
+                            popUpTo(navController.graph.findStartDestination().id)
+                            launchSingleTop = true
+                        }
+                    }
+                    .padding(4.dp)
+            )
+        }
+    }
+
 }
 
 

@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">GDSC</string>
+    <string name="title_activity_profile">ProfileActivity</string>
+    <string name="title_activity_event_info">EventInfoActivity</string>
 </resources>

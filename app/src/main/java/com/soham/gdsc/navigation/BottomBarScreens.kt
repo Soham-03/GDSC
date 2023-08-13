@@ -19,15 +19,20 @@ sealed class BottomBarScreen(
         icon = R.drawable.ic_events
     )
 
-    object AddPost: BottomBarScreen(
-        route = "add post",
-        title = "add post",
-        icon = R.drawable.ic_home
+    object Leaderboard: BottomBarScreen(
+        route = "leaderboard",
+        title = "leaderboard",
+        icon = R.drawable.ic_leaderboard
     )
 
-    object Profile: BottomBarScreen(
-        route = "profile",
-        title = "profile",
-        icon = R.drawable.ic_home
+    object Blogs: BottomBarScreen(
+        route = "blogs",
+        title = "blogs",
+        icon = R.drawable.ic_blogs
+    )
+    object EventInfo: BottomBarScreen(
+        route = "eventInfo",
+        title = "eventInfo",
+        icon = R.drawable.ic_events
     )
 }
