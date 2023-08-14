@@ -1,9 +1,10 @@
 package com.soham.gdsc.ui.screen
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
+import android.content.Intent
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -15,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -23,6 +25,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.soham.gdsc.MainActivity
 import com.soham.gdsc.R
 import com.soham.gdsc.ui.theme.*
 
@@ -33,6 +36,8 @@ fun SignInScreen(){
             .fillMaxSize()
     )
     {
+        val context = LocalContext.current
+        val activity = context.findActivity()
         //background elements
         Column(
             modifier = Modifier
@@ -40,7 +45,8 @@ fun SignInScreen(){
         )
         {
             Image(
-                painter = painterResource(id = R.drawable.ic_gdsc_logo),            contentDescription = "GDSC Logo",
+                painter = painterResource(id = R.drawable.ic_gdsc_logo),
+                contentDescription = "GDSC Logo",
                 modifier = Modifier
                     .padding(16.dp)
                     .height(80.dp)
@@ -77,6 +83,8 @@ fun SignInScreen(){
                     )
                     {
                         var name by remember{ mutableStateOf(TextFieldValue("")) }
+                        var phoneNo by remember{ mutableStateOf(TextFieldValue("")) }
+                        var collegeName by remember{ mutableStateOf(TextFieldValue("")) }
                         Text(
                             text = "Hello, Developers",
                             color = textColorGrey,
@@ -102,7 +110,8 @@ fun SignInScreen(){
                             },
                             colors = TextFieldDefaults.outlinedTextFieldColors(
                                 textColor = textColorGrey,
-                                focusedBorderColor = LightBlue
+                                focusedBorderColor = LightBlue,
+                                unfocusedBorderColor = textColorGrey
                             ),
                             keyboardOptions = KeyboardOptions(
                                 keyboardType = KeyboardType.Text
@@ -113,23 +122,24 @@ fun SignInScreen(){
                                 .align(Alignment.CenterHorizontally)
                         )
                         OutlinedTextField(
-                            value = name,
+                            value = phoneNo,
                             onValueChange = {
-                                name = it
+                                phoneNo = it
                             },
                             shape = RoundedCornerShape(30.dp),
                             label = {
                                 Text(
-                                    text = "Your Roll No.?",
+                                    text = "Phone Number?",
                                     color = textColorGrey,
                                 )
                             },
                             colors = TextFieldDefaults.outlinedTextFieldColors(
                                 textColor = textColorGrey,
-                                focusedBorderColor = LightBlue
+                                focusedBorderColor = LightBlue,
+                                unfocusedBorderColor = textColorGrey
                             ),
                             keyboardOptions = KeyboardOptions(
-                                keyboardType = KeyboardType.Number
+                                keyboardType = KeyboardType.Phone
                             ),
                             modifier = Modifier
                                 .padding(top = 12.dp)
@@ -137,20 +147,21 @@ fun SignInScreen(){
                                 .align(Alignment.CenterHorizontally)
                         )
                         OutlinedTextField(
-                            value = name,
+                            value = collegeName,
                             onValueChange = {
-                                name = it
+                                collegeName = it
                             },
                             shape = RoundedCornerShape(30.dp),
                             label = {
                                 Text(
-                                    text = "Your Class?",
+                                    text = "Your College?",
                                     color = textColorGrey,
                                 )
                             },
                             colors = TextFieldDefaults.outlinedTextFieldColors(
                                 textColor = textColorGrey,
-                                focusedBorderColor = LightBlue
+                                focusedBorderColor = LightBlue,
+                                unfocusedBorderColor = textColorGrey
                             ),
                             keyboardOptions = KeyboardOptions(
                                 keyboardType = KeyboardType.Text
@@ -166,18 +177,6 @@ fun SignInScreen(){
                                 .padding(top = 12.dp)
                         )
                         {
-//                    Card(
-//                        backgroundColor = Yellow,
-//                        shape = RoundedCornerShape(30.dp),
-//                        border = BorderStroke(2.dp, Color.Black),
-//                        modifier = Modifier
-//                            .padding(start = 20.dp, bottom = 8.dp)
-//                            .fillMaxWidth()
-//                            .height(60.dp)
-//                    )
-//                    {
-//
-//                    }
                             Box(modifier = Modifier
                                 .padding(top = 8.dp)
                                 .fillMaxWidth()
@@ -191,6 +190,11 @@ fun SignInScreen(){
                                     .height(60.dp)
                                     .border(2.dp, Color.Black, RoundedCornerShape(30.dp))
                                     .background(Color.White, RoundedCornerShape(30.dp))
+                                    .clickable {
+                                        val intent = Intent(context, MainActivity::class.java)
+                                        context.startActivity(intent)
+                                        activity.finish()
+                                    }
                             )
                             {
                                 Text(
@@ -215,7 +219,9 @@ fun SignInScreen(){
                 shape = RoundedCornerShape(30.dp),
                 border = BorderStroke(2.dp, Color.Black),
                 onClick = {
-
+                    val intent = Intent(context, MainActivity::class.java)
+                    context.startActivity(intent)
+                    activity.finish()
                 },
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = Yellow,
@@ -236,7 +242,17 @@ fun SignInScreen(){
             )
         }
     }
+}
 
+//function to find activity from local context
+//used above where context is assigned
+internal fun Context.findActivity(): Activity {
+    var context = this
+    while (context is ContextWrapper) {
+        if (context is Activity) return context
+        context = context.baseContext
+    }
+    throw IllegalStateException("Permissions should be called in the context of an Activity")
 }
 
 @Preview
