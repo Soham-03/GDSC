@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.rememberNavController
 import com.soham.gdsc.MainActivity
 import com.soham.gdsc.R
+import com.soham.gdsc.model.Event
 import com.soham.gdsc.ui.component.EventSingleRow
 import com.soham.gdsc.ui.theme.cardBackgroundGreen
 import com.soham.gdsc.ui.theme.textColorGrey
@@ -27,6 +28,10 @@ fun EventInfoScreen(
     eventDate: String,
     eventTime: String
 ){
+
+    val event = Event("12","Bit n Builds","12 july","10:00 Am","")
+    println(event.eventName)
+    event.eventName = "Compose Camp"
     val context = LocalContext.current
     Column() {
         Row(
