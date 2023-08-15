@@ -10,6 +10,8 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.ktx.Firebase
 import com.soham.gdsc.ui.screen.ProfileScreen
 import com.soham.gdsc.ui.theme.GDSCTheme
 
@@ -23,7 +25,7 @@ class ProfileActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    ProfileScreen(uid = "")
+                    ProfileScreen(FirebaseAuth.getInstance().currentUser!!)
                 }
             }
         }

@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
+import android.text.TextUtils
 import android.widget.Toast
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -36,7 +37,6 @@ fun SignInScreen(
     state: SignedInState,
     onSignInClick:() -> Unit
 ){
-    val context = LocalContext.current
     LaunchedEffect(key1 = state.signInError){
         state.signInError.let {
             println("Failed")
@@ -202,7 +202,16 @@ fun SignInScreen(
                                     .border(2.dp, Color.Black, RoundedCornerShape(30.dp))
                                     .background(Color.White, RoundedCornerShape(30.dp))
                                     .clickable {
-                                        onSignInClick.invoke()
+                                        if (!TextUtils.isEmpty(name.text) && !TextUtils.isEmpty(
+                                                phoneNo.text
+                                            ) && !TextUtils.isEmpty(collegeName.text)
+                                        ) {
+                                            onSignInClick.invoke()
+                                        } else {
+                                            Toast
+                                                .makeText(context, "Please fill the above fields", Toast.LENGTH_LONG)
+                                                .show()
+                                        }
 //                                        val intent = Intent(context, MainActivity::class.java)
 //                                        context.startActivity(intent)
 //                                        activity.finish()

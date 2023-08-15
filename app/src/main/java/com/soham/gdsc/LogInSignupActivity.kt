@@ -1,6 +1,7 @@
 package com.soham.gdsc
 
 import android.app.Instrumentation.ActivityResult
+import android.content.Intent
 import android.content.IntentSender
 import android.os.Bundle
 import android.widget.Toast
@@ -51,6 +52,7 @@ class LogInSignupActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
+                    val auth = FirebaseAuth.getInstance()
                     val viewModel = viewModel<SignInViewModel>()
                     val state by viewModel.state.collectAsState()
                     val launcher = rememberLauncherForActivityResult(
@@ -66,27 +68,29 @@ class LogInSignupActivity : ComponentActivity() {
                             }
                         }
                     )
-                    
                     LaunchedEffect(key1 = state.isSignInSuccessful){
-                        if(state.isSignInSuccessful){
+                        if(state.isSignInSuccessful || auth.currentUser!=null){
                             Toast.makeText(applicationContext, "Sign In Successful", Toast.LENGTH_SHORT).show()
+                            val intent = Intent(this@LogInSignupActivity, MainActivity::class.java)
+                            startActivity(intent)
+                            finish()
                         }
                     }
-                    
-                    SignInScreen(
-                        state = state,
-                        onSignInClick = {
-                            lifecycleScope.launch {
-                                val signInIntent = googleAuthClient.signIn()
-                                launcher.launch(
-                                    IntentSenderRequest.Builder(
-                                        signInIntent ?: return@launch
-                                    ).build()
-                                )
+                    if(auth.currentUser == null){
+                        SignInScreen(
+                            state = state,
+                            onSignInClick = {
+                                lifecycleScope.launch {
+                                    val signInIntent = googleAuthClient.signIn()
+                                    launcher.launch(
+                                        IntentSenderRequest.Builder(
+                                            signInIntent ?: return@launch
+                                        ).build()
+                                    )
+                                }
                             }
-                        }
-                    )
-
+                        )
+                    }
                 }
             }
         }

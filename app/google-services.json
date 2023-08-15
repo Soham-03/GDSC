@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "780702867728",
+    "project_id": "gdsc-supremacy",
+    "storage_bucket": "gdsc-supremacy.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:780702867728:android:f05103b81cd94a502b0595",
+        "android_client_info": {
+          "package_name": "com.soham.gdsc"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "780702867728-29p5ouhd6v4mjugkmpnefnk010n3plqi.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.soham.gdsc",
+            "certificate_hash": "4fa2ba3d7ddc35dce76bffa7ecf125b6b3db4b9a"
+          }
+        },
+        {
+          "client_id": "780702867728-6u16ojttbee480bod8o0u3ii57rgggng.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDAt8FC3hk-XfGxP5hMwktn6-3vZZFFUcw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "780702867728-4mrv6kspnngkh2j236aea01i5k3vt34u.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

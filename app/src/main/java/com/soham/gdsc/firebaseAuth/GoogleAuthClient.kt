@@ -42,7 +42,9 @@ class GoogleAuthClient(
                     UserData(
                         userId = uid,
                         userName = displayName,
-                        profilePictureUrl = photoUrl?.toString()
+                        profilePictureUrl = photoUrl?.toString(),
+                        userEmail = email,
+                        userPhoneNumber = phoneNumber
                     )
                 },
                 errorMessage = null
