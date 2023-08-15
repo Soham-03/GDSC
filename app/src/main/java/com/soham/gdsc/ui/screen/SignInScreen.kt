@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
+import android.widget.Toast
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,10 +28,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.soham.gdsc.MainActivity
 import com.soham.gdsc.R
+import com.soham.gdsc.firebaseAuth.SignedInState
 import com.soham.gdsc.ui.theme.*
 
 @Composable
-fun SignInScreen(){
+fun SignInScreen(
+    state: SignedInState,
+    onSignInClick:() -> Unit
+){
+    val context = LocalContext.current
+    LaunchedEffect(key1 = state.signInError){
+        state.signInError.let {
+            println("Failed")
+        }
+    }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -191,9 +202,10 @@ fun SignInScreen(){
                                     .border(2.dp, Color.Black, RoundedCornerShape(30.dp))
                                     .background(Color.White, RoundedCornerShape(30.dp))
                                     .clickable {
-                                        val intent = Intent(context, MainActivity::class.java)
-                                        context.startActivity(intent)
-                                        activity.finish()
+                                        onSignInClick.invoke()
+//                                        val intent = Intent(context, MainActivity::class.java)
+//                                        context.startActivity(intent)
+//                                        activity.finish()
                                     }
                             )
                             {
@@ -258,5 +270,5 @@ internal fun Context.findActivity(): Activity {
 @Preview
 @Composable
 fun SignInPreview(){
-    SignInScreen()
+    SignInScreen(SignedInState(false, null),{})
 }

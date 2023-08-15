@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
@@ -28,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.soham.gdsc.MainActivity
 import com.soham.gdsc.R
+import com.soham.gdsc.ui.component.EventsAttendedSingleRow
 import com.soham.gdsc.ui.theme.LightBlue
 import com.soham.gdsc.ui.theme.LightRed
 import com.soham.gdsc.ui.theme.Yellow
@@ -37,42 +39,50 @@ import com.soham.gdsc.ui.theme.textColorGrey
 fun ProfileScreen(uid: String){
     val context = LocalContext.current
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
     )
-    {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth()
-        )
-        {
-            Image(
-                painter = painterResource(id = R.drawable.ic_back),
-                contentDescription = "back btn",
+    {   Box(){
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier
-                    .size(64.dp)
-                    .clickable {
-                        val intent = Intent(context, MainActivity::class.java)
-                        intent.flags =
-                            Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                        context.startActivity(intent)
-                    }
+                    .padding(16.dp)
+                    .fillMaxWidth()
             )
+            {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_back),
+                    contentDescription = "back btn",
+                    modifier = Modifier
+                        .size(64.dp)
+                        .clickable {
+                            val intent = Intent(context, MainActivity::class.java)
+                            intent.flags =
+                                Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                            context.startActivity(intent)
+                        }
+                )
+                Image(
+                    painter = painterResource(id = R.drawable.ic_question),
+                    contentDescription = "question ic",
+                    modifier = Modifier
+                        .size(30.dp)
+                )
+            }
             Text(
                 text = "Your Profile",
                 color = textColorGrey,
                 fontSize = 24.sp,
-                textAlign = TextAlign.Center
-            )
-            Image(
-                painter = painterResource(id = R.drawable.ic_question),
-                contentDescription = "question ic",
+                textAlign = TextAlign.Center,
                 modifier = Modifier
-                    .size(30.dp)
+                    .align(Alignment.Center)
+
             )
         }
+
         Image(
             painter = painterResource(id = R.drawable.ic_launcher_background),
             contentDescription = "profile image",
@@ -173,6 +183,28 @@ fun ProfileScreen(uid: String){
                 }
             }
         }
+        Text(
+            text = "Events Attended",
+            color = textColorGrey,
+            fontSize = 24.sp,
+            modifier = Modifier
+                .padding(start = 16.dp, top = 16.dp)
+                .align(Alignment.Start)
+        )
+        LazyColumn(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth()
+        ){
+
+            for(i in 0..5){
+                item {
+                    EventsAttendedSingleRow()
+                }
+            }
+
+        }
+
 
     }
 }
