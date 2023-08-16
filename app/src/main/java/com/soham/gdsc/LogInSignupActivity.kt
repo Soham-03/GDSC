@@ -31,6 +31,7 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.soham.gdsc.firebaseAuth.GoogleAuthClient
 import com.soham.gdsc.firebaseAuth.SignInViewModel
+import com.soham.gdsc.firebaseDB.UserRepo
 import com.soham.gdsc.ui.screen.SignInScreen
 import com.soham.gdsc.ui.theme.GDSCTheme
 import kotlinx.coroutines.launch

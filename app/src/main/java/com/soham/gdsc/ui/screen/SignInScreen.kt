@@ -27,10 +27,14 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import com.google.firebase.auth.FirebaseAuth
 import com.soham.gdsc.MainActivity
 import com.soham.gdsc.R
 import com.soham.gdsc.firebaseAuth.SignedInState
+import com.soham.gdsc.firebaseDB.UserRepo
 import com.soham.gdsc.ui.theme.*
+import kotlinx.coroutines.coroutineScope
 
 @Composable
 fun SignInScreen(
@@ -49,6 +53,7 @@ fun SignInScreen(
     {
         val context = LocalContext.current
         val activity = context.findActivity()
+        val user = FirebaseAuth.getInstance().currentUser
         //background elements
         Column(
             modifier = Modifier
@@ -207,9 +212,16 @@ fun SignInScreen(
                                             ) && !TextUtils.isEmpty(collegeName.text)
                                         ) {
                                             onSignInClick.invoke()
+                                            if (user != null) {
+                                                UserRepo(context = context).setUserData(uid =user.uid.toString(), collegeName = collegeName.text)
+                                            }
                                         } else {
                                             Toast
-                                                .makeText(context, "Please fill the above fields", Toast.LENGTH_LONG)
+                                                .makeText(
+                                                    context,
+                                                    "Please fill the above fields",
+                                                    Toast.LENGTH_LONG
+                                                )
                                                 .show()
                                         }
 //                                        val intent = Intent(context, MainActivity::class.java)
@@ -275,6 +287,7 @@ internal fun Context.findActivity(): Activity {
     }
     throw IllegalStateException("Permissions should be called in the context of an Activity")
 }
+
 
 @Preview
 @Composable
