@@ -31,6 +31,7 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.soham.gdsc.firebaseAuth.GoogleAuthClient
 import com.soham.gdsc.firebaseAuth.SignInViewModel
+import com.soham.gdsc.firebaseDB.FirestoreViewModel
 import com.soham.gdsc.firebaseDB.UserRepo
 import com.soham.gdsc.ui.screen.SignInScreen
 import com.soham.gdsc.ui.theme.GDSCTheme
@@ -55,6 +56,7 @@ class LogInSignupActivity : ComponentActivity() {
                 ) {
                     val auth = FirebaseAuth.getInstance()
                     val viewModel = viewModel<SignInViewModel>()
+                    val firestoreViewModel = viewModel<FirestoreViewModel>()
                     val state by viewModel.state.collectAsState()
                     val launcher = rememberLauncherForActivityResult(
                         contract = ActivityResultContracts.StartIntentSenderForResult(),
@@ -89,7 +91,9 @@ class LogInSignupActivity : ComponentActivity() {
                                         ).build()
                                     )
                                 }
-                            }
+                            },
+                            firestoreViewModel = FirestoreViewModel(firestoreRepo = UserRepo(this@LogInSignupActivity)),
+                            user = auth.currentUser!!
                         )
                     }
                 }

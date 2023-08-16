@@ -26,7 +26,7 @@ class UserRepo(
         return data
     }
 
-    fun setUserData(uid:String, collegeName:String){
+    suspend fun setUserData(uid:String, collegeName:String){
         val hashMap = HashMap<String, String>()
         hashMap["collegeName"] = collegeName
         hashMap["tags"] = "0"
