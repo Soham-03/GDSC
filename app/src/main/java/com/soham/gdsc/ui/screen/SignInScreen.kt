@@ -9,7 +9,6 @@ import android.widget.Toast
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -27,24 +26,19 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
+import com.soham.gdsc.Global
 import com.soham.gdsc.MainActivity
 import com.soham.gdsc.R
 import com.soham.gdsc.firebaseAuth.SignedInState
 import com.soham.gdsc.firebaseDB.FirestoreViewModel
-import com.soham.gdsc.firebaseDB.UserRepo
 import com.soham.gdsc.ui.theme.*
-import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
 fun SignInScreen(
     state: SignedInState,
-    onSignInClick:() -> Unit,
-    firestoreViewModel: FirestoreViewModel,
-    user: FirebaseUser
+    onSignInClick:() -> Unit
 ){
     var name by remember{ mutableStateOf(TextFieldValue("")) }
     var phoneNo by remember{ mutableStateOf(TextFieldValue("")) }
@@ -54,9 +48,9 @@ fun SignInScreen(
             println("Failed")
         }
     }
-    LaunchedEffect(key1 = state.isSignInSuccessful){
-        firestoreViewModel.setUserData(user.uid.toString(), collegeName = collegeName.text.toString())
-    }
+//    LaunchedEffect(key1 = state.isSignInSuccessful){
+//        firestoreViewModel.setUserData(user.uid.toString(), collegeName = collegeName.text.toString())
+//    }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -219,15 +213,9 @@ fun SignInScreen(
                                                 phoneNo.text
                                             ) && !TextUtils.isEmpty(collegeName.text)
                                         ) {
+                                            Global.collegeName
+                                            Global.phoneNumber
                                             onSignInClick.invoke()
-                                            if (user != null) {
-//                                                UserRepo(context = context).setUserData(
-//                                                    uid = user.uid.toString(),
-//                                                    collegeName = collegeName.text
-//                                                )
-                                            } else {
-                                                println("In the block")
-                                            }
                                         } else {
                                             Toast
                                                 .makeText(
@@ -265,9 +253,7 @@ fun SignInScreen(
                 shape = RoundedCornerShape(30.dp),
                 border = BorderStroke(2.dp, Color.Black),
                 onClick = {
-                    val intent = Intent(context, MainActivity::class.java)
-                    context.startActivity(intent)
-                    activity.finish()
+                    onSignInClick.invoke()
                 },
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = Yellow,

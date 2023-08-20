@@ -5,5 +5,9 @@ data class Event(
     var eventName: String,
     val eventDate: String,
     val eventTime: String,
-    val eventImage: String
+    val eventImage: String,
+    val eventTags: String,
+    val eventAbout: String,
+    val quizStatus: Boolean,
+    val upcoming: Boolean
 )

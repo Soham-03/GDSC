@@ -10,6 +10,9 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ModifierInfo
@@ -21,20 +24,39 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.auth.FirebaseAuth
 import com.soham.gdsc.MainActivity
 import com.soham.gdsc.R
+import com.soham.gdsc.firebaseDB.FirestoreRepo
+import com.soham.gdsc.firebaseDB.FirestoreViewModel
 import com.soham.gdsc.model.Event
 import com.soham.gdsc.ui.component.EventSingleRow
+import com.soham.gdsc.ui.component.RSVPButton
+import com.soham.gdsc.ui.component.RSVPButtonPreview
 import com.soham.gdsc.ui.theme.cardBackgroundGreen
 import com.soham.gdsc.ui.theme.textColorGrey
 
 @Composable
 fun EventInfoScreen(
+    eventId: String,
     eventName: String,
     eventDate: String,
-    eventTime: String
+    eventTime: String,
+    eventImage: String,
+    eventAbout: String,
+    eventTags: String,
+    quizStatus: Boolean,
+    viewModel: FirestoreViewModel
 ){
     val context = LocalContext.current
+    val userId = FirebaseAuth.getInstance().currentUser!!.uid
+    val state by viewModel.state.collectAsState()
+    LaunchedEffect(Unit){
+        viewModel.checkEventInRegisteredList(eventId, userId)
+    }
+    LaunchedEffect(key1 = state.registeredEventExistStatus){
+        viewModel.checkStatus(eventId, userId)
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -86,7 +108,7 @@ fun EventInfoScreen(
         {
             EventSingleRow(
                 backgroundColor = cardBackgroundGreen,
-                eventImage = "",
+                eventImage = eventImage,
                 eventName = eventName,
                 eventDate = eventDate,
                 eventTime = eventTime,
@@ -103,51 +125,7 @@ fun EventInfoScreen(
                 .padding(16.dp)
         )
         Text(
-            text = "‼ BitNBuild: Hack the future at our event! ‼\uD83D\uDC68\uD83C\uDFFB\u200D\uD83D\uDCBB\n" +
-                "\n" +
-                "GDSC UMIT and GDSC CRCE have joined hands to organize first OFFLINE hackathon for the year 2023!!\n" +
-                "\n" +
-                "Yes, you read it right! It's a 24 hour offline hackathon and guess what, Food is on us!\uD83C\uDF5D\n" +
-                "\n" +
-                "Pre-hackathon:\n" +
-                "\n" +
-                "(21st January 2023 - 26th January 2023)\n" +
-                "\n" +
-                "● 21st January at 6:00pm - Problem Statement Release - Idea submission for round 1 begins\n" +
-                "\n" +
-                "● 24th January at 11:59pm - Idea submission ends\n" +
-                "\n" +
-                "● 26th January at 7:00pm - Announcement of the participants qualified for round 2, which will be held OFFLINE at Fr. Conceicao Rodrigues College of Engineering, Bandra.\n" +
-                "\n" +
-                "\uD83D\uDDD3Date of the offline hackathon: 28th January - 29th January 2023\n" +
-                "\n" +
-                "\uD83D\uDD60Time: 2:00pm (28th January) to 6:00pm (29th January)\n" +
-                "\n" +
-                "\uD83D\uDCCDVenue: Fr Conceicao Rodrigues College of Engineering, Bandstand, Bandra(West), Mumbai\n" +
-                "\n" +
-                "\uD83E\uDDFEDomains in BitNBuild :\n" +
-                "\n" +
-                "\uD83D\uDD38App/Web Development\n" +
-                "\n" +
-                "\uD83D\uDD38Open Innovation\n" +
-                "\n" +
-                "\uD83D\uDD38Blockchain\n" +
-                "\n" +
-                "\uD83D\uDD38AI/ML\n" +
-                "\n" +
-                "PRIZE POOL OF INR 70,000+\uD83D\uDCB0\n" +
-                "\n" +
-                "Certificate of participation will be given to all teams with valid submissions\uD83D\uDD16\n" +
-                "\n" +
-                "♦️ Participants: 2-4 members per team\n" +
-                "\n" +
-                "♦️ Full Agenda for 28th and 29th January is up on our website : bitnbuild.netlify.app\n" +
-                "\n" +
-                "♦️ Registration link: bit-n-build.devfolio.co\n" +
-                "\n" +
-                "‼ Register Now!!‼\n" +
-                "\n" +
-                "Last date of registration: 24th January 2023, 11:59pm",
+            text = eventAbout,
             color =  textColorGrey,
             fontSize = 12.sp,
             modifier = Modifier
@@ -179,7 +157,7 @@ fun EventInfoScreen(
                     .size(42.dp)
             )
             Text(
-                text = "28-july",
+                text = eventDate,
                 color = textColorGrey,
                 fontSize = 16.sp,
             )
@@ -199,13 +177,55 @@ fun EventInfoScreen(
                 modifier = Modifier
                     .padding(end = 16.dp)
             )
-
         }
+        Text(
+            text = "Participation Tags",
+            color = textColorGrey,
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier
+                .padding(16.dp)
+        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .fillMaxWidth()
+        )
+        {
+            Text(
+                text = "You'll get $eventTags GDSC Tags for attending the event\nWhat a Win!",
+                color = textColorGrey,
+                fontSize = 16.sp,
+                modifier = Modifier
+                    .weight(2f)
+            )
+            Image(
+                painter = painterResource(id = R.drawable.gdsc_logo),
+                contentDescription = "gdsc logo",
+                modifier = Modifier
+                    .size(64.dp)
+                    .weight(1f)
+            )
+            Text(
+                text = "'s",
+                color = cardBackgroundGreen,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .padding(start=4.dp)
+                    .weight(0.2f)
+            )
+        }
+        RSVPButton(viewModel, state, eventId, userId, eventName)
     }
 }
 
 @Preview
 @Composable
 fun EventInfoPreview(){
-    EventInfoScreen(eventName = "", eventDate = "", eventTime = "")
+    EventInfoScreen(eventId = "",eventName = "", eventDate = "", eventTime = "", eventImage = "", eventAbout = "", eventTags = "", quizStatus = false, FirestoreViewModel(
+        FirestoreRepo(context = LocalContext.current)
+    ))
 }

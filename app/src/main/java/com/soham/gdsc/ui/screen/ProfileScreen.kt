@@ -1,7 +1,9 @@
 package com.soham.gdsc.ui.screen
 
 import android.content.Intent
-import androidx.activity.compose.BackHandler
+import android.graphics.Bitmap
+import android.graphics.Rect
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -19,38 +21,47 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.simonsickle.compose.barcodes.Barcode
+import com.simonsickle.compose.barcodes.BarcodeType
 import com.soham.gdsc.MainActivity
 import com.soham.gdsc.R
-import com.soham.gdsc.firebaseAuth.UserData
+import com.soham.gdsc.firebaseDB.FirestoreViewModel
 import com.soham.gdsc.ui.component.EventsAttendedSingleRow
 import com.soham.gdsc.ui.theme.LightBlue
 import com.soham.gdsc.ui.theme.LightRed
 import com.soham.gdsc.ui.theme.Yellow
+import com.soham.gdsc.ui.theme.cardBackgroundGreen
 import com.soham.gdsc.ui.theme.textColorGrey
 
 @Composable
-fun ProfileScreen(userData: FirebaseUser){
+fun ProfileScreen(userData: FirebaseUser, firebaseViewModel: FirestoreViewModel){
     val context = LocalContext.current
+    val state by firebaseViewModel.state.collectAsState()
+    val uid = userData.uid
+    var viewQr by remember {
+        mutableStateOf(false)
+    }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState(), true)
     )
-    {   Box(){
+    {
+        Box(){
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -88,16 +99,43 @@ fun ProfileScreen(userData: FirebaseUser){
 
             )
         }
-
-        AsyncImage(
-            model = userData.photoUrl.toString(),
-            contentDescription = "profile image",
-            modifier = Modifier
-                .size(220.dp)
-                .clip(CircleShape)
-                .align(Alignment.CenterHorizontally),
-            error = painterResource(id = R.drawable.ic_launcher_background)
-        )
+        AnimatedVisibility(visible = viewQr) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Transparent),
+                contentAlignment = Alignment.Center
+            ){
+                if (BarcodeType.QR_CODE.isValueValid(uid)) {
+                    Barcode(
+                        modifier = Modifier
+                            .width(300.dp)
+                            .height(300.dp)
+                            .clip(RoundedCornerShape(20.dp))
+                            .clickable {
+                                viewQr = false
+                            },
+                        resolutionFactor = 10, // Optionally, increase the resolution of the generated image
+                        type = BarcodeType.QR_CODE, // pick the type of barcode you want to render
+                        value = uid // The textual representation of this code
+                    )
+                }
+            }
+        }
+        AnimatedVisibility(visible = !viewQr) {
+            AsyncImage(
+                model = userData.photoUrl,
+                contentDescription = "profile image",
+                modifier = Modifier
+                    .size(220.dp)
+                    .clip(CircleShape)
+                    .align(Alignment.CenterHorizontally)
+                    .clickable {
+                        viewQr = true
+                    },
+                error = painterResource(id = R.drawable.ic_launcher_background),
+            )
+        }
         Text(
             text = userData.displayName.toString(),
             color = textColorGrey,
@@ -112,12 +150,13 @@ fun ProfileScreen(userData: FirebaseUser){
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold
         )
-        Text(
-            text = userData.phoneNumber.toString(),
-            color = LightBlue,
-            fontSize = 14.sp
-        )
-
+        AnimatedVisibility(visible = state.isUserDataAvailable!=null) {
+            Text(
+                text = state.isUserDataAvailable?.get(0).toString(),
+                color = LightBlue,
+                fontSize = 14.sp
+            )
+        }
         //points card
         Box(
             modifier = Modifier
@@ -167,25 +206,27 @@ fun ProfileScreen(userData: FirebaseUser){
                     )
                     {
                         Text(
-                            text = "Your Points",
+                            text = "Your Tags",
                             color = Yellow,
                             fontSize = 32.sp,
                             fontWeight = FontWeight.Bold
                         )
-                        Text(
-                            text = "696",
-                            color = textColorGrey,
-                            fontSize = 32.sp,
-                            fontWeight = FontWeight.Bold
-                        )
+                        AnimatedVisibility(visible = state.isUserDataAvailable!=null) {
+                            Text(
+                                text = state.isUserDataAvailable?.get(1).toString(),
+                                color = textColorGrey,
+                                fontSize = 32.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                     }
                     Image(
-                        painter = painterResource(id = R.drawable.ic_star),
+                        painter = painterResource(id = R.drawable.gdsc_logo),
                         contentDescription = "star image",
                         alpha = 0.8f,
                         modifier = Modifier
+                            .padding(12.dp)
                             .size(120.dp)
-                            .rotate(-45f)
                     )
                 }
             }
@@ -212,13 +253,11 @@ fun ProfileScreen(userData: FirebaseUser){
             }
 
         }
-
-
     }
 }
 
 @Preview
 @Composable
 fun ProfileScreenPreview(){
-//    ProfileScreen()
+    ProfileScreen(FirebaseAuth.getInstance().currentUser!!,viewModel())
 }

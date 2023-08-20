@@ -19,13 +19,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.soham.gdsc.R
 import com.soham.gdsc.ui.theme.ProductSans
 import com.soham.gdsc.ui.theme.Yellow
 import com.soham.gdsc.ui.theme.cardBackgroundGreen
 
 @Composable
-fun FlagshipEventSingleRow(eventName: String){
+fun FlagshipEventSingleRow(eventName: String, eventImage: String){
     Box() {
         var height by remember{ mutableStateOf(0.dp) }
         var width by remember{ mutableStateOf(0.dp) }
@@ -59,8 +60,8 @@ fun FlagshipEventSingleRow(eventName: String){
                 }
         )
         {
-            Image(
-                painter = painterResource(id = R.drawable.ic_launcher_background),
+            AsyncImage(
+                model = eventImage,
                 contentDescription = "Event Image Poster",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -85,5 +86,5 @@ fun FlagshipEventSingleRow(eventName: String){
 @Preview
 @Composable
 fun FlagshipEventSingleRowPreview(){
-    FlagshipEventSingleRow(eventName = "Bit N Build")
+    FlagshipEventSingleRow(eventName = "Bit N Build", eventImage = "")
 }

@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -28,6 +29,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.soham.gdsc.EventInfoActivity
 import com.soham.gdsc.Greeting
+import com.soham.gdsc.firebaseDB.FirebaseState
+import com.soham.gdsc.firebaseDB.FirestoreRepo
+import com.soham.gdsc.firebaseDB.FirestoreViewModel
+import com.soham.gdsc.model.Event
 import com.soham.gdsc.navigation.BottomBarScreen
 import com.soham.gdsc.ui.component.EventSingleRow
 import com.soham.gdsc.ui.component.SearchBar
@@ -36,9 +41,14 @@ import java.net.URL
 
 @Composable
 fun EventsScreen(
-    navController : NavHostController
+    viewModel: FirestoreViewModel
 ){
     val context = LocalContext.current
+    val state by viewModel.state.collectAsState()
+    var list by remember {
+        mutableStateOf(ArrayList<Event>())
+    }
+    list = state.isEventsSuccess
     Column()
     {
         Text(
@@ -69,6 +79,7 @@ fun EventsScreen(
                     .clip(RoundedCornerShape(20.dp))
                     .clickable {
                         if (!selectedUpcoming) {
+                            list = filterUpcoming(state)
                             selectedUpcoming = true
                             selectedPast = false
                         }
@@ -108,6 +119,7 @@ fun EventsScreen(
                     .clip(RoundedCornerShape(20.dp))
                     .clickable {
                         if (!selectedPast) {
+                            list = filterPast(state)
                             selectedPast = true
                             selectedUpcoming = false
                         }
@@ -145,22 +157,105 @@ fun EventsScreen(
                 .padding(horizontal = 16.dp)
         )
         {
-            for (i in 0..10){
-                item {
-                    EventSingleRow(
-                        backgroundColor = cardBackgroundGreen,
-                        eventImage = "",
-                        eventName = "Bit N Builds",
-                        eventDate = "24-26 November",
-                        eventTime = "10:10 am - 10:59 pm",
-                        onEventClick = {
-                            val intent = Intent(context, EventInfoActivity::class.java)
-                            context.startActivity(intent)
-//                            navController.navigate(BottomBarScreen.EventInfo.route)
+            if(selectedPast){
+                val pastList = filterPast(state)
+                if(pastList.isNotEmpty()){
+                    for(event in pastList){
+                        item {
+                            EventSingleRow(
+                                backgroundColor = cardBackgroundGreen,
+                                eventImage = event.eventImage,
+                                eventName = event.eventName,
+                                eventDate = event.eventDate,
+                                eventTime = event.eventTime,
+                                onEventClick = {
+                                    val intent = Intent(context, EventInfoActivity::class.java)
+                                    event.apply{
+                                        intent.putExtra("eventId",eventId)
+                                        intent.putExtra("eventName",eventName)
+                                        intent.putExtra("eventImage",eventImage)
+                                        intent.putExtra("eventDate",eventDate)
+                                        intent.putExtra("eventTime",eventTime)
+                                        intent.putExtra("eventTags",eventTags)
+                                        intent.putExtra("eventAbout",eventAbout)
+                                        intent.putExtra("quizStatus",quizStatus)
+                                        intent.putExtra("upcoming",upcoming)
+                                    }
+                                    context.startActivity(intent)
+                                }
+                            )
                         }
-                    )
+                    }
+                }
+                else{
+                    item {
+                        Text(
+                            text = "No Events to show here :(",
+                            fontSize = 24.sp,
+                            color = textColorGrey,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
             }
+            else{
+                val upcomingList = filterUpcoming(state)
+                if(upcomingList.isNotEmpty()){
+                    for(event in upcomingList){
+                        item {
+                            EventSingleRow(
+                                backgroundColor = cardBackgroundGreen,
+                                eventImage = event.eventImage,
+                                eventName = event.eventName,
+                                eventDate = event.eventDate,
+                                eventTime = event.eventTime,
+                                onEventClick = {
+                                    val intent = Intent(context, EventInfoActivity::class.java)
+                                    event.apply{
+                                        intent.putExtra("eventId",eventId)
+                                        intent.putExtra("eventName",eventName)
+                                        intent.putExtra("eventImage",eventImage)
+                                        intent.putExtra("eventDate",eventDate)
+                                        intent.putExtra("eventTime",eventTime)
+                                        intent.putExtra("eventTags",eventTags)
+                                        intent.putExtra("eventAbout",eventAbout)
+                                        intent.putExtra("quizStatus",quizStatus)
+                                        intent.putExtra("upcoming",upcoming)
+                                    }
+                                    context.startActivity(intent)
+                                }
+                            )
+                        }
+                    }
+                }
+                else{
+                    item {
+                        Text(
+                            text = "No Events to show here :(",
+                            fontSize = 24.sp,
+                            color = textColorGrey,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
+
+//            for (i in 0..10){
+//                item {
+//                    EventSingleRow(
+//                        backgroundColor = cardBackgroundGreen,
+//                        eventImage = "",
+//                        eventName = "Bit N Builds",
+//                        eventDate = "24-26 November",
+//                        eventTime = "10:10 am - 10:59 pm",
+//                        onEventClick = {
+//                            val intent = Intent(context, EventInfoActivity::class.java)
+//                            context.startActivity(intent)
+////                            navController.navigate(BottomBarScreen.EventInfo.route)
+//                        }
+//                    )
+//                }
+//            }
             item { 
                 Spacer(modifier = Modifier.height(100.dp))
             }
@@ -168,8 +263,32 @@ fun EventsScreen(
     }
 }
 
+fun filterPast(state: FirebaseState): ArrayList<Event> {
+    val pastList = ArrayList<Event>()
+    if(state.isEventsSuccess.isNotEmpty()){
+        for(event in state.isEventsSuccess){
+            if(!event.upcoming){
+                pastList.add(event)
+            }
+        }
+    }
+    return pastList
+}
+
+fun filterUpcoming(state: FirebaseState): ArrayList<Event> {
+    val upcomingList = ArrayList<Event>()
+    if(state.isEventsSuccess.isNotEmpty()){
+        for(event in state.isEventsSuccess){
+            if(event.upcoming){
+                upcomingList.add(event)
+            }
+        }
+    }
+    return upcomingList
+}
+
 @Preview
 @Composable
 fun EventsScreenPreview(){
-    EventsScreen(navController = rememberNavController())
+//    EventsScreen(navController = rememberNavController())
 }

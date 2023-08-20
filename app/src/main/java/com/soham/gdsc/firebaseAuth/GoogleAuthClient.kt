@@ -9,6 +9,8 @@ import com.google.android.gms.auth.api.identity.SignInClient
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.soham.gdsc.R
+import com.soham.gdsc.firebaseDB.FirestoreRepo
+import com.soham.gdsc.firebaseDB.FirestoreViewModel
 import kotlinx.coroutines.tasks.await
 import java.util.concurrent.CancellationException
 
@@ -31,12 +33,17 @@ class GoogleAuthClient(
         return result?.pendingIntent?.intentSender
     }
 
-    suspend fun signInWithIntent(intent: Intent): SignInResult{
+    suspend fun signInWithIntent(intent: Intent, phoneNumber: String, collegeName: String): SignInResult{
         val credential = oneTapClient.getSignInCredentialFromIntent(intent)
         val googleIdToken = credential.googleIdToken
         val googleCredentials = GoogleAuthProvider.getCredential(googleIdToken, null)
         return try{
             val user = auth.signInWithCredential(googleCredentials).await().user
+            val repo = FirestoreRepo(context)
+            val viewModel = FirestoreViewModel(repo)
+            if (user != null) {
+                viewModel.setUserData(user, collegeName, phoneNumber)
+            }
             SignInResult(
                 userData = user?.run {
                     UserData(

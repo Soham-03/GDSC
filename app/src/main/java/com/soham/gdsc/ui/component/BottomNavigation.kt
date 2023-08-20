@@ -21,18 +21,19 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.soham.gdsc.firebaseDB.FirestoreViewModel
 import com.soham.gdsc.navigation.BottomBarScreen
 import com.soham.gdsc.navigation.BottomNavigationGraph
 import com.soham.gdsc.ui.theme.LightBlue
 import com.soham.gdsc.ui.theme.Yellow
 
 @Composable
-fun BottomNavigation(){
+fun BottomNavigation(viewModel: FirestoreViewModel){
     val navController = rememberNavController()
     Scaffold(
         bottomBar = { BottomBar(navController = navController) }
     ) {it.calculateBottomPadding()
-        BottomNavigationGraph(navController = navController)
+        BottomNavigationGraph(navController = navController, viewModel)
     }
 }
 
@@ -150,5 +151,5 @@ fun RowScope.AddItem(
 @Preview
 @Composable
 fun BottomNavPreview(){
-    BottomNavigation()
+//    BottomNavigation()
 }

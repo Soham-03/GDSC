@@ -13,7 +13,7 @@ fun NavGraphBuilder.EventsNavGraph(
 ){
     NavHost(navController = navHostController, startDestination = "Events"){
         composable("Events"){
-            EventInfoScreen(eventName = "GGWp", eventDate = "GGS", eventTime = "GGs")
+//            EventInfoScreen(eventName = "GGWp", eventDate = "GGS", eventTime = "GGs")
         }
     }
 }

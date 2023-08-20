@@ -21,6 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
 import com.soham.gdsc.ui.theme.ProductSans
 import com.soham.gdsc.R
 import com.soham.gdsc.navigation.BottomBarScreen
@@ -71,13 +72,15 @@ fun EventSingleRow(
                 .wrapContentSize()
                 .background(color = Color.White, shape = RoundedCornerShape(size = 30.dp))
                 .onGloballyPositioned { coordinates ->
-                    height = with(localDensity) { coordinates.size.height.toDp() }}
+                    height = with(localDensity) { coordinates.size.height.toDp() }
+                }
         )
         {
-            Image(
-                painter = painterResource(id = R.drawable.ic_launcher_background),
+            AsyncImage(
+                model = eventImage,
                 contentDescription = "Event Image Poster",
                 contentScale = ContentScale.Crop,
+                error = painterResource(id = R.drawable.ic_launcher_background),
                 modifier = Modifier
                     .padding(top = 12.dp, start = 12.dp, end = 12.dp)
                     .fillMaxWidth()

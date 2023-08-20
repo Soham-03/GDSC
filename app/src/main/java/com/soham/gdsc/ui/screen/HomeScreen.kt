@@ -10,6 +10,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -23,9 +26,13 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
+import com.google.firebase.auth.FirebaseAuth
 import com.soham.gdsc.Greeting
 import com.soham.gdsc.ProfileActivity
 import com.soham.gdsc.R
+import com.soham.gdsc.firebaseDB.FirestoreViewModel
 import com.soham.gdsc.ui.component.FlagshipEventSingleRow
 import com.soham.gdsc.ui.component.TopMonthRankGraph
 import com.soham.gdsc.ui.theme.LightBlue
@@ -34,7 +41,11 @@ import com.soham.gdsc.ui.theme.Yellow
 import com.soham.gdsc.ui.theme.textColorGrey
 
 @Composable
-fun HomeScreen(){
+fun HomeScreen(viewModel: FirestoreViewModel){
+    LaunchedEffect(Unit){
+        viewModel.getBestOfMonth()
+    }
+    val state by viewModel.state.collectAsState()
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -51,16 +62,35 @@ fun HomeScreen(){
         {
             Column()
             {
-                Text(
-                    text = "Welcome\nBack",
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black,
-                    fontSize = 36.sp,
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier
-                        .padding(top = 30.dp, start = 20.dp, end = 20.dp)
+                        .fillMaxWidth()
                 )
+                {
+                    val context = LocalContext.current
+                    Text(
+                        text = "Welcome\nBack",
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black,
+                        fontSize = 36.sp,
+                        modifier = Modifier
+                            .padding(top = 30.dp, start = 20.dp, end = 20.dp)
+                    )
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_user),
+                        contentDescription = "profile icon",
+                        modifier = Modifier
+                            .padding(top = 30.dp, start = 20.dp, end = 20.dp)
+                            .size(64.dp)
+                            .clickable {
+                                val intent = Intent(context, ProfileActivity::class.java)
+                                context.startActivity(intent)
+                            }
+                    )
+                }
                 Text(
-                    text = "UserName",
+                    text = FirebaseAuth.getInstance().currentUser!!.displayName!!,
                     fontWeight = FontWeight.Bold,
                     color = textColorGrey,
                     fontSize = 20.sp,
@@ -68,18 +98,6 @@ fun HomeScreen(){
                         .padding(start = 20.dp, end = 20.dp)
                 )
             }
-            val context = LocalContext.current
-            Image(
-                painter = painterResource(id = R.drawable.ic_user),
-                contentDescription = "profile icon",
-                modifier = Modifier
-                    .padding(horizontal = 20.dp)
-                    .size(64.dp)
-                    .clickable {
-                        val intent = Intent(context,ProfileActivity::class.java)
-                        context.startActivity(intent)
-                    }
-            )
         }
         
         Row(
@@ -106,9 +124,10 @@ fun HomeScreen(){
                 .padding(start = 16.dp, bottom = 16.dp)
         )
         {
-            for(i in 0..6){
+            val flagshipList = state.isFlagShipEventSuccess
+            for(flagshipEvent in flagshipList){
                 item {
-                    FlagshipEventSingleRow(eventName = "Compose Camp")
+                    FlagshipEventSingleRow(flagshipEvent.eventName, flagshipEvent.eventImage)
                 }
             }
             item {
@@ -159,9 +178,11 @@ fun HomeScreen(){
             {
                 Column(horizontalAlignment = Alignment.CenterHorizontally)
                 {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_launcher_background),
+                    AsyncImage(
+                        model = if(state.isBestOfMonthSuccess.isEmpty()){""}else{state.isBestOfMonthSuccess.get(1)},
                         contentDescription = "Profile Second",
+                        contentScale = ContentScale.Crop,
+                        error = painterResource(id = R.drawable.ic_launcher_foreground),
                         modifier = Modifier
                             .padding(top = 8.dp, bottom = 8.dp)
                             .size(64.dp)
@@ -170,9 +191,11 @@ fun HomeScreen(){
                     TopMonthRankGraph(foreground = LightBlue, points = "69", subtraction = 32)   
                 }
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_launcher_background),
+                    AsyncImage(
+                        model = if(state.isBestOfMonthSuccess.isEmpty()){""}else{state.isBestOfMonthSuccess.get(0)},
                         contentDescription = "Profile Second",
+                        contentScale = ContentScale.Crop,
+                        error = painterResource(id = R.drawable.ic_launcher_foreground),
                         modifier = Modifier
                             .padding(top = 8.dp, bottom = 8.dp)
                             .size(64.dp)
@@ -181,9 +204,11 @@ fun HomeScreen(){
                     TopMonthRankGraph(foreground = Yellow, points = "69", subtraction = 0)
                 }
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_launcher_background),
+                    AsyncImage(
+                        model = if(state.isBestOfMonthSuccess.isEmpty()){""}else{state.isBestOfMonthSuccess.get(2)},
                         contentDescription = "Profile Second",
+                        contentScale = ContentScale.Crop,
+                        error = painterResource(id = R.drawable.ic_launcher_foreground),
                         modifier = Modifier
                             .padding(top = 8.dp, bottom = 8.dp)
                             .size(64.dp)
@@ -200,5 +225,5 @@ fun HomeScreen(){
 @Preview
 @Composable
 fun HomeScreenPreview(){
-    HomeScreen()
+    HomeScreen(viewModel())
 }

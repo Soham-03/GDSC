@@ -9,7 +9,10 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import com.soham.gdsc.firebaseDB.FirestoreRepo
+import com.soham.gdsc.firebaseDB.FirestoreViewModel
 import com.soham.gdsc.ui.component.BottomNavigation
 import com.soham.gdsc.ui.theme.GDSCTheme
 
@@ -23,7 +26,10 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    BottomNavigation()
+                    val repo = FirestoreRepo(context = LocalContext.current)
+                    val viewModel = FirestoreViewModel(repo)
+
+                    BottomNavigation(viewModel)
                 }
             }
         }
