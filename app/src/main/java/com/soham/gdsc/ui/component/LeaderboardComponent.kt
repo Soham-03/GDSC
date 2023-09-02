@@ -46,10 +46,14 @@ fun LeaderboardComponent(
     userName: String,
     userImage: String,
     tags: String,
+    userClass: String,
     backgroundColor: Color,
     rank: String
 ){
-    Box()
+    Box(
+        modifier = Modifier
+            .padding(vertical = 10.dp)
+    )
     {
         Box(
             modifier = Modifier
@@ -70,6 +74,7 @@ fun LeaderboardComponent(
         {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier
                     .padding(12.dp)
                     .fillMaxWidth()
@@ -119,5 +124,5 @@ fun LeaderboardComponent(
 @Preview
 @Composable
 fun LeaderboardCompPreview(){
-    LeaderboardComponent(userName = "adadasdasdasdasdasdasdazdasdasdawdadawdasd", userImage = "", tags = "69", textColorGrey,"1")
+    LeaderboardComponent(userName = "adadasdasdasdasdasdasdazdasdasdawdadawdasd", userImage = "", tags = "69", "", textColorGrey,"1")
 }

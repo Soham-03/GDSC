@@ -5,9 +5,11 @@ import android.widget.Toast
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import com.soham.gdsc.model.AttendedEvent
 import com.soham.gdsc.model.Event
 import com.soham.gdsc.model.FlagShipEvent
 import com.soham.gdsc.model.LeaderBoardData
+import com.soham.gdsc.model.Problem
 import kotlinx.coroutines.tasks.await
 
 class FirestoreRepo(
@@ -18,7 +20,7 @@ class FirestoreRepo(
     suspend fun getUserCollege(uid: String): ArrayList<String?> {
         val data = ArrayList<String?>()
         val doc = db.collection("users").document(uid).get().await()
-        val collegeName = doc.data?.get("collegeName").toString()
+        val collegeName = doc.data?.get("userClass").toString()
         val tags = doc.data?.get("tags").toString()
         data.add(collegeName)
         data.add(tags)
@@ -30,8 +32,7 @@ class FirestoreRepo(
         val exists = doc.exists()
         if(!exists){
             val hashMap = HashMap<String, String>()
-            hashMap["collegeName"] = collegeName
-            hashMap["collegeName"] = collegeName
+            hashMap["userClass"] = collegeName
             hashMap["tags"] = "0"
             hashMap["userName"] = myuser.displayName.toString()
             hashMap["userImage"] = myuser.photoUrl.toString()
@@ -43,9 +44,18 @@ class FirestoreRepo(
         }
     }
 
+    suspend fun getProblem(): Problem{
+        val docs = db.collection("problemOfWeek").document("problem").get().await()
+        var problem = Problem("","","", "")
+        if(docs.exists()){
+               problem = Problem(docs["problemTitle"].toString(), docs["problemDesc"].toString(), docs["problemStartAndEnd"].toString(), submissionLink =  docs["link"].toString())
+        }
+        return problem
+    }
+
     suspend fun getAllEvents(): ArrayList<Event> {
         val data = ArrayList<Event>()
-        val docs = db.collection("events").get().await()
+        val docs = db.collection("events").orderBy("timestamp",Query.Direction.ASCENDING).get().await()
         for(doc in docs){
             data.add(
                 Event(
@@ -57,7 +67,8 @@ class FirestoreRepo(
                     eventTags = doc["eventTags"].toString(),
                     quizStatus = doc["quizStatus"] as Boolean,
                     upcoming = doc["upcoming"] as Boolean,
-                    eventAbout = doc["eventAbout"].toString()
+                    eventAbout = doc["eventAbout"].toString(),
+                    eventLink = doc["link"].toString()
                 )
             )
             println("About"+doc["eventAbout"].toString())
@@ -65,10 +76,11 @@ class FirestoreRepo(
         return data
     }
 
-    suspend fun registerForEvent(eventId: String, uid:String, eventName: String){
+    suspend fun registerForEvent(eventId: String, uid:String, eventName: String, eventTags: String){
         val hashMap = HashMap<String,String>()
         hashMap["eventName"] = eventName
         hashMap["status"] = "waiting"
+        hashMap["tags"] = eventTags
         db.collection("users").document(uid).collection("eventsPendingConfirmation").document(eventId).set(hashMap)
             .addOnSuccessListener {
                 Toast.makeText(context, "Registered for event, Waiting for confirmation", Toast.LENGTH_SHORT).show()
@@ -86,8 +98,11 @@ class FirestoreRepo(
         val docs = db.collection("users").document(uid).collection("eventsPendingConfirmation").document(eventId).get().await()
         result = if(docs["status"] == "waiting"){
             "Waiting for confirmation"
-        } else{
+        } else if(docs["status"] == "confirmed"){
             "Confirmed"
+        }
+        else{
+            "Register for the event"
         }
         return result
     }
@@ -96,7 +111,7 @@ class FirestoreRepo(
         val list = ArrayList<LeaderBoardData>()
         val docs = db.collection("users").orderBy("tags",Query.Direction.DESCENDING).limit(10).get().await()
         for(doc in docs){
-            list.add(LeaderBoardData(tags = doc["tags"].toString(), userName = doc["userName"].toString(), userImage = doc["userImage"].toString()))
+            list.add(LeaderBoardData(tags = doc["tags"].toString(), userName = doc["userName"].toString(), userImage = doc["userImage"].toString(), userClass = doc["userClass"].toString()))
         }
         return list
     }
@@ -119,4 +134,15 @@ class FirestoreRepo(
         println("List: "+list)
         return list
     }
+
+    suspend fun getAttendedEvents(uid: String): ArrayList<AttendedEvent>{
+        val list = ArrayList<AttendedEvent>()
+        val docs = db.collection("users").document(uid).collection("eventsAttended")
+            .orderBy("timestamp").get().await()
+        for(doc in docs){
+            list.add(AttendedEvent(eventImg = doc["eventImage"].toString(), eventName = doc["eventName"].toString(), tagsEarned = doc["tagsEarned"].toString(), attendedOn = doc["attendedOn"].toString()))
+        }
+        return list
+    }
+
 }

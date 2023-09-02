@@ -26,12 +26,28 @@ import com.soham.gdsc.navigation.BottomBarScreen
 import com.soham.gdsc.navigation.BottomNavigationGraph
 import com.soham.gdsc.ui.theme.LightBlue
 import com.soham.gdsc.ui.theme.Yellow
+import kotlinx.coroutines.delay
 
 @Composable
 fun BottomNavigation(viewModel: FirestoreViewModel){
     val navController = rememberNavController()
+    val state by viewModel.state.collectAsState()
+    var show by remember {
+        mutableStateOf(true)
+    }
+    LaunchedEffect(Unit){
+        delay(3000)
+        if(!state.isFlagShipEventLoading){
+            show = false
+        }
+    }
     Scaffold(
-        bottomBar = { BottomBar(navController = navController) }
+        bottomBar = {
+            AnimatedVisibility(visible = !show) {
+                BottomBar(navController = navController)
+            }
+
+        }
     ) {it.calculateBottomPadding()
         BottomNavigationGraph(navController = navController, viewModel)
     }

@@ -37,7 +37,8 @@ class EventInfoActivity : ComponentActivity() {
                         eventTags = intent.getStringExtra("eventTags").toString(),
                         eventAbout = intent.getStringExtra("eventAbout").toString(),
                         quizStatus = intent.getBooleanExtra("quizStatus",false),
-                        viewModel = viewModel
+                        viewModel = viewModel,
+                        eventLink = intent.getStringExtra("eventLink").toString()
                     )
                 }
             }

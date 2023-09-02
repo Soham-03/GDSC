@@ -16,13 +16,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
+import com.soham.gdsc.model.AttendedEvent
 import com.soham.gdsc.ui.theme.LightBlue
 import com.soham.gdsc.ui.theme.LightRed
 import com.soham.gdsc.ui.theme.Yellow
 import com.soham.gdsc.ui.theme.textColorGrey
 
 @Composable
-fun EventsAttendedSingleRow(){
+fun EventsAttendedSingleRow(event: AttendedEvent){
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -54,8 +56,8 @@ fun EventsAttendedSingleRow(){
                 .height(150.dp)
                 .background(color = Color.White, shape = RoundedCornerShape(size = 30.dp))
         ) {
-            Image(
-                painter = painterResource(id = com.soham.gdsc.R.drawable.ic_launcher_background),
+            AsyncImage(
+                model = event.eventImg,
                 contentDescription = "Event Image",
                 modifier = Modifier
                     .padding(8.dp)
@@ -70,15 +72,19 @@ fun EventsAttendedSingleRow(){
             )
             {
                 Text(
-                    text = "Event Name",
+                    text = event.eventName,
                     color = textColorGrey,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.SemiBold
                 )
                 Text(
-                    text = "100 Points",
+                    text = "You got ${event.tagsEarned} tags, less goo",
                     color = LightRed,
                     fontSize = 24.sp
+                )
+                Text(
+                    text = event.attendedOn,
+                    color = textColorGrey
                 )
             }
         }
@@ -88,5 +94,5 @@ fun EventsAttendedSingleRow(){
 @Preview
 @Composable
 fun EventsAttendedPreview(){
-    EventsAttendedSingleRow()
+    EventsAttendedSingleRow(AttendedEvent("","","",""))
 }

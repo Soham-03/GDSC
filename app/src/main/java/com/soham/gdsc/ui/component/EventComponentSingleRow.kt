@@ -164,9 +164,7 @@ fun EventSingleRow(
                     }
                 }
             }
-            
         }
-
     }
 }
 

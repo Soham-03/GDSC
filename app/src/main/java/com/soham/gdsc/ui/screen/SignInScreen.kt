@@ -48,9 +48,6 @@ fun SignInScreen(
             println("Failed")
         }
     }
-//    LaunchedEffect(key1 = state.isSignInSuccessful){
-//        firestoreViewModel.setUserData(user.uid.toString(), collegeName = collegeName.text.toString())
-//    }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -213,8 +210,8 @@ fun SignInScreen(
                                                 phoneNo.text
                                             ) && !TextUtils.isEmpty(collegeName.text)
                                         ) {
-                                            Global.collegeName
-                                            Global.phoneNumber
+                                            Global.collegeName = collegeName.text
+                                            Global.phoneNumber = phoneNo.text
                                             onSignInClick.invoke()
                                         } else {
                                             Toast

@@ -29,8 +29,8 @@ class FirestoreViewModel(private val firestoreRepo: FirestoreRepo): ViewModel() 
         _state.value = _state.value.copy(isEventsLoading = false)
     }
 
-    suspend fun registerForEvent(eventId: String, uid:String, eventName: String){
-        firestoreRepo.registerForEvent(eventId, uid, eventName)
+    suspend fun registerForEvent(eventId: String, uid:String, eventName: String, eventTags: String){
+        firestoreRepo.registerForEvent(eventId, uid, eventName, eventTags)
     }
 
     suspend fun checkEventInRegisteredList(eventId: String, uid:String){
@@ -57,14 +57,24 @@ class FirestoreViewModel(private val firestoreRepo: FirestoreRepo): ViewModel() 
         }
         else{
             _state.value = _state.value.copy(isFlagShipEventSuccess = status)
+            _state.value = _state.value.copy(isFlagShipEventLoading = false)
         }
-        _state.value = _state.value.copy(isFlagShipEventLoading = false)
     }
 
     suspend fun getBestOfMonth(){
         val status = firestoreRepo.getBestOfMonth()
         _state.value = _state.value.copy(isBestOfMonthSuccess = status)
-        println("Another List:"+status)
+    }
+
+    suspend fun getProblemStatement(){
+        val status = firestoreRepo.getProblem()
+        _state.value = _state.value.copy(isProblemStatementSuccess = status)
+        println("Link"+status)
+    }
+
+    suspend fun getAttendedEvents(uid: String){
+        val status = firestoreRepo.getAttendedEvents(uid)
+        _state.value = _state.value.copy(isEventsAttendedSuccess = status)
     }
 
 }

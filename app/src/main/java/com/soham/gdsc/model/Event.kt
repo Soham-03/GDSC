@@ -9,5 +9,6 @@ data class Event(
     val eventTags: String,
     val eventAbout: String,
     val quizStatus: Boolean,
-    val upcoming: Boolean
+    val upcoming: Boolean,
+    val eventLink: String
 )

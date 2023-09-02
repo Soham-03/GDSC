@@ -2,6 +2,7 @@ package com.soham.gdsc.ui.screen
 
 import android.content.Intent
 import android.content.Intent.FilterComparison
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.ScrollableState
@@ -169,19 +170,7 @@ fun EventsScreen(
                                 eventDate = event.eventDate,
                                 eventTime = event.eventTime,
                                 onEventClick = {
-                                    val intent = Intent(context, EventInfoActivity::class.java)
-                                    event.apply{
-                                        intent.putExtra("eventId",eventId)
-                                        intent.putExtra("eventName",eventName)
-                                        intent.putExtra("eventImage",eventImage)
-                                        intent.putExtra("eventDate",eventDate)
-                                        intent.putExtra("eventTime",eventTime)
-                                        intent.putExtra("eventTags",eventTags)
-                                        intent.putExtra("eventAbout",eventAbout)
-                                        intent.putExtra("quizStatus",quizStatus)
-                                        intent.putExtra("upcoming",upcoming)
-                                    }
-                                    context.startActivity(intent)
+                                    Toast.makeText(context, "Event is over now.", Toast.LENGTH_SHORT).show()
                                 }
                             )
                         }
@@ -221,6 +210,7 @@ fun EventsScreen(
                                         intent.putExtra("eventAbout",eventAbout)
                                         intent.putExtra("quizStatus",quizStatus)
                                         intent.putExtra("upcoming",upcoming)
+                                        intent.putExtra("eventLink",eventLink)
                                     }
                                     context.startActivity(intent)
                                 }
@@ -234,7 +224,8 @@ fun EventsScreen(
                             text = "No Events to show here :(",
                             fontSize = 24.sp,
                             color = textColorGrey,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center
                         )
                     }
                 }

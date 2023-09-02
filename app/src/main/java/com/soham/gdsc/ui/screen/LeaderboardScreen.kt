@@ -66,6 +66,7 @@ fun LeaderBoardScreen(viewModel: FirestoreViewModel){
                         userImage = list[i].userImage,
                         tags = list[i].tags,
                         backgroundColor = backgroundColor,
+                        userClass = list[i].userClass,
                         rank = (i+1).toString()
                     )
                 }

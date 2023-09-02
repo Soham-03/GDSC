@@ -1,5 +1,8 @@
 package com.soham.gdsc.ui.component
 
+import android.net.Uri
+import android.widget.Toast
+import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -40,7 +43,7 @@ import com.soham.gdsc.ui.theme.textColorGrey
 import kotlinx.coroutines.launch
 
 @Composable
-fun RSVPButton(viewModel: FirestoreViewModel, state: FirebaseState, eventId: String, uid:String, eventName:String){
+fun RSVPButton(viewModel: FirestoreViewModel, state: FirebaseState, eventId: String, uid:String, eventName:String, eventTags:String, eventLink: String){
     Box(modifier = Modifier.padding(16.dp))
     {
         Box(
@@ -51,13 +54,30 @@ fun RSVPButton(viewModel: FirestoreViewModel, state: FirebaseState, eventId: Str
                 .border(2.dp, Color.Black, RoundedCornerShape(30.dp))
                 .background(Yellow, RoundedCornerShape(30.dp))
         )
+        var text by remember { mutableStateOf("Register For the event") }
         val coroutineScope = rememberCoroutineScope()
+        val context = LocalContext.current
         val getLocationOnClick: () -> Unit = {
             coroutineScope.launch {
-                viewModel.registerForEvent(eventId, uid, eventName = eventName)
+                if(text == "Confirmed"){
+                    Toast.makeText(context, "Your seat is confirmed. See you at the event :)", Toast.LENGTH_SHORT).show()
+                }
+                else if(text == "Waiting for confirmation"){
+                    Toast.makeText(context, "Hold up and Sit back for confirmation, check back later", Toast.LENGTH_SHORT).show()
+                }
+                else{
+                    viewModel.registerForEvent(eventId, uid, eventName = eventName, eventTags)
+                }
             }
         }
-        var text by remember { mutableStateOf("") }
+            if(state.eventRegistrationStatus == "Waiting for confirmation"){
+                text = state.eventRegistrationStatus
+            }
+            else if(state.eventRegistrationStatus == "Confirmed"){
+                text = state.eventRegistrationStatus
+            }
+//        }
+
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
@@ -66,17 +86,17 @@ fun RSVPButton(viewModel: FirestoreViewModel, state: FirebaseState, eventId: Str
                 .background(Color.White, RoundedCornerShape(30.dp))
                 .border(2.dp, Color.Black, RoundedCornerShape(30.dp))
                 .clickable {
-                    getLocationOnClick.invoke()
                     text = "Waiting for confirmation"
+//                    text = if (!state.registeredEventExistStatus) {
+//                        "Register for the Event"
+//                    } else {
+//                        state.eventRegistrationStatus
+//                    }
+                    getLocationOnClick.invoke()
+//                    CustomTabsIntent.Builder().build().launchUrl(context, Uri.parse(eventLink))
                 }
         )
         {
-            text = if(!state.registeredEventExistStatus){
-                "Register for the Event"
-            } else {
-                state.eventRegistrationStatus
-            }
-
             Text(
                 text = text,
                 color = textColorGrey,

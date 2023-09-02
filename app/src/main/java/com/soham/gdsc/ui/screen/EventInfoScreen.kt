@@ -46,6 +46,7 @@ fun EventInfoScreen(
     eventAbout: String,
     eventTags: String,
     quizStatus: Boolean,
+    eventLink: String,
     viewModel: FirestoreViewModel
 ){
     val context = LocalContext.current
@@ -218,14 +219,14 @@ fun EventInfoScreen(
                     .weight(0.2f)
             )
         }
-        RSVPButton(viewModel, state, eventId, userId, eventName)
+        RSVPButton(viewModel, state, eventId, userId, eventName, eventTags, eventLink)
     }
 }
 
 @Preview
 @Composable
 fun EventInfoPreview(){
-    EventInfoScreen(eventId = "",eventName = "", eventDate = "", eventTime = "", eventImage = "", eventAbout = "", eventTags = "", quizStatus = false, FirestoreViewModel(
-        FirestoreRepo(context = LocalContext.current)
-    ))
+    EventInfoScreen(eventId = "",eventName = "", eventDate = "", eventTime = "", eventImage = "", eventAbout = "", eventTags = "", quizStatus = false, viewModel =  FirestoreViewModel(
+        FirestoreRepo(context = LocalContext.current),
+    ),eventLink =  "")
 }

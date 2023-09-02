@@ -2,6 +2,7 @@ package com.soham.gdsc.ui.screen
 
 import android.content.ClipData.Item
 import android.content.Intent
+import android.icu.text.CaseMap.Title
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -32,8 +33,10 @@ import com.google.firebase.auth.FirebaseAuth
 import com.soham.gdsc.Greeting
 import com.soham.gdsc.ProfileActivity
 import com.soham.gdsc.R
+import com.soham.gdsc.firebaseDB.FirestoreRepo
 import com.soham.gdsc.firebaseDB.FirestoreViewModel
 import com.soham.gdsc.ui.component.FlagshipEventSingleRow
+import com.soham.gdsc.ui.component.ProblemStatement
 import com.soham.gdsc.ui.component.TopMonthRankGraph
 import com.soham.gdsc.ui.theme.LightBlue
 import com.soham.gdsc.ui.theme.LightRed
@@ -111,12 +114,6 @@ fun HomeScreen(viewModel: FirestoreViewModel){
                 text = "Flagship Events",
                 fontSize = 24.sp,
             )
-            Text(
-                text = "See More",
-                fontSize = 16.sp,
-                color = Color.Blue,
-                textDecoration = TextDecoration.Underline
-            )
         }
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -145,12 +142,6 @@ fun HomeScreen(viewModel: FirestoreViewModel){
             Text(
                 text = "Best of Month",
                 fontSize = 24.sp,
-            )
-            Text(
-                text = "See More",
-                fontSize = 16.sp,
-                color = Color.Blue,
-                textDecoration = TextDecoration.Underline
             )
         }
         Card(
@@ -217,13 +208,32 @@ fun HomeScreen(viewModel: FirestoreViewModel){
                     TopMonthRankGraph(foreground = LightRed, points = "69", subtraction = 50)
                 }
             }
+
         }
-        Spacer(modifier = Modifier.height(70.dp))
+        Text(
+            text = "Problem of the week",
+            fontSize = 24.sp,
+            color = textColorGrey,
+            modifier = Modifier
+                .padding(top = 20.dp, start = 16.dp, end = 16.dp, bottom = 14.dp)
+        )
+//        Card(
+//            backgroundColor = Color.White,
+//            border = BorderStroke(2.dp, LightRed),
+//            modifier = Modifier
+//                .padding(horizontal = 16.dp, vertical = 8.dp)
+//                .fillMaxWidth()
+//        )
+//        {
+//
+//        }
+        ProblemStatement(problem = state.isProblemStatementSuccess)
+        Spacer(modifier = Modifier.height(100.dp))
     }
 }
 
 @Preview
 @Composable
 fun HomeScreenPreview(){
-    HomeScreen(viewModel())
+    HomeScreen(FirestoreViewModel(FirestoreRepo(LocalContext.current)))
 }

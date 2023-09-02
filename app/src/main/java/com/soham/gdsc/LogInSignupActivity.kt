@@ -15,6 +15,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.lifecycleScope
@@ -27,7 +30,9 @@ import com.soham.gdsc.firebaseAuth.SignInViewModel
 import com.soham.gdsc.firebaseDB.FirestoreViewModel
 import com.soham.gdsc.firebaseDB.FirestoreRepo
 import com.soham.gdsc.ui.screen.SignInScreen
+import com.soham.gdsc.ui.screen.SplashScreen
 import com.soham.gdsc.ui.theme.GDSCTheme
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class LogInSignupActivity : ComponentActivity() {
@@ -47,59 +52,60 @@ class LogInSignupActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    val auth = FirebaseAuth.getInstance()
-                    val viewModel = viewModel<SignInViewModel>()
-                    val firestoreRepo = FirestoreRepo(this@LogInSignupActivity)
-                    val firebaseViewModel = FirestoreViewModel(firestoreRepo)
-                    val state by viewModel.state.collectAsState()
-                    val sharedPreferences = this@LogInSignupActivity.getSharedPreferences("Login",
-                        MODE_PRIVATE)
-                    val launcher = rememberLauncherForActivityResult(
-                        contract = ActivityResultContracts.StartIntentSenderForResult(),
-                        onResult = {
-                            if(it.resultCode == RESULT_OK){
-                                lifecycleScope.launch {
-                                    val signInResult = googleAuthClient.signInWithIntent(
-                                        it.data ?: return@launch,
-                                        phoneNumber = Global.phoneNumber.toString(),
-                                        collegeName = Global.collegeName.toString()
-                                    )
-                                    viewModel.onSignInResult(signInResult)
+
+                        val auth = FirebaseAuth.getInstance()
+                        val viewModel = viewModel<SignInViewModel>()
+                        val firestoreRepo = FirestoreRepo(this@LogInSignupActivity)
+                        val firebaseViewModel = FirestoreViewModel(firestoreRepo)
+                        val state by viewModel.state.collectAsState()
+                        val sharedPreferences = this@LogInSignupActivity.getSharedPreferences("Login",
+                            MODE_PRIVATE)
+                        val launcher = rememberLauncherForActivityResult(
+                            contract = ActivityResultContracts.StartIntentSenderForResult(),
+                            onResult = {
+                                if(it.resultCode == RESULT_OK){
+                                    lifecycleScope.launch {
+                                        val signInResult = googleAuthClient.signInWithIntent(
+                                            it.data ?: return@launch,
+                                            phoneNumber = Global.phoneNumber.toString(),
+                                            collegeName = Global.collegeName.toString()
+                                        )
+                                        viewModel.onSignInResult(signInResult)
+                                    }
                                 }
                             }
-                        }
-                    )
+                        )
 //                    if(auth.currentUser == null){
 //                        sharedPreferences.edit().putBoolean("status",false).apply()
 //                    }
 //                    else{
 //                        sharedPreferences.edit().putBoolean("status",true).apply()
 //                    }
-                    LaunchedEffect(key1 = state.isSignInSuccessful){
-                        if(state.isSignInSuccessful || auth.currentUser!=null){
-                            Toast.makeText(applicationContext, "Sign In Successful", Toast.LENGTH_SHORT).show()
-                            val intent = Intent(this@LogInSignupActivity, MainActivity::class.java)
-                            startActivity(intent)
-                            finish()
+                        LaunchedEffect(key1 = state.isSignInSuccessful){
+                            if(state.isSignInSuccessful || auth.currentUser!=null){
+                                Toast.makeText(applicationContext, "Sign In Successful", Toast.LENGTH_SHORT).show()
+                                val intent = Intent(this@LogInSignupActivity, MainActivity::class.java)
+                                startActivity(intent)
+                                finish()
+                            }
+                        }
+                        if(auth.currentUser == null){
+                            SignInScreen(
+                                state = state,
+                                onSignInClick = {
+                                    lifecycleScope.launch {
+                                        val signInIntent = googleAuthClient.signIn()
+                                        launcher.launch(
+                                            IntentSenderRequest.Builder(
+                                                signInIntent ?: return@launch
+                                            ).build()
+                                        )
+                                    }
+                                }
+                            )
                         }
                     }
-                    if(auth.currentUser == null){
-                        SignInScreen(
-                            state = state,
-                            onSignInClick = {
-                                lifecycleScope.launch {
-                                    val signInIntent = googleAuthClient.signIn()
-                                    launcher.launch(
-                                        IntentSenderRequest.Builder(
-                                            signInIntent ?: return@launch
-                                        ).build()
-                                    )
-                                }
-                            }
-                        )
-                    }
                 }
-            }
         }
     }
 }

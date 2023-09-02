@@ -49,11 +49,15 @@ import com.soham.gdsc.ui.theme.textColorGrey
 @Composable
 fun ProfileScreen(userData: FirebaseUser, firebaseViewModel: FirestoreViewModel){
     val context = LocalContext.current
-    val state by firebaseViewModel.state.collectAsState()
     val uid = userData.uid
     var viewQr by remember {
         mutableStateOf(false)
     }
+    LaunchedEffect(key1 = Unit){
+        firebaseViewModel.getAttendedEvents(FirebaseAuth.getInstance().currentUser!!.uid)
+    }
+    val state by firebaseViewModel.state.collectAsState()
+    val list = state.isEventsAttendedSuccess
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -239,19 +243,30 @@ fun ProfileScreen(userData: FirebaseUser, firebaseViewModel: FirestoreViewModel)
                 .padding(start = 16.dp, top = 16.dp)
                 .align(Alignment.Start)
         )
-        LazyColumn(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth()
-                .height(300.dp)
-        ){
-
-            for(i in 0..5){
-                item {
-                    EventsAttendedSingleRow()
+        AnimatedVisibility(visible = state.isEventsAttendedSuccess.isEmpty()) {
+            Text(
+                text = "You haven't attended any event",
+                color = textColorGrey,
+                fontSize = 18.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .padding(start = 16.dp, top = 16.dp)
+                    .align(Alignment.Start)
+            )
+        }
+        AnimatedVisibility(visible = state.isEventsAttendedSuccess.isNotEmpty()) {
+            LazyColumn(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth()
+                    .height(300.dp)
+            ){
+                for(event in list){
+                    item {
+                        EventsAttendedSingleRow(event = event)
+                    }
                 }
             }
-
         }
     }
 }
@@ -259,5 +274,5 @@ fun ProfileScreen(userData: FirebaseUser, firebaseViewModel: FirestoreViewModel)
 @Preview
 @Composable
 fun ProfileScreenPreview(){
-    ProfileScreen(FirebaseAuth.getInstance().currentUser!!,viewModel())
+//    ProfileScreen(FirebaseAuth.getInstance().currentUser!!,viewModel())
 }

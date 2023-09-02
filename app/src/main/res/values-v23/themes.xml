@@ -4,5 +4,6 @@
     <style name="Theme.GDSC" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:statusBarColor">@color/white</item>
         <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowIsTranslucent">true</item>
     </style>
 </resources>
