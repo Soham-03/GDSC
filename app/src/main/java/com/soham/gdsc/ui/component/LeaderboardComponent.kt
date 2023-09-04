@@ -100,9 +100,7 @@ fun LeaderboardComponent(
                         .widthIn(max = 160.dp)
                 )
                 Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier
-                        .padding(start = 12.dp)
+                    horizontalAlignment = Alignment.CenterHorizontally
                 )
                 {
                     Text(

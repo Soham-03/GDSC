@@ -108,6 +108,16 @@ class LogInSignupActivity : ComponentActivity() {
                 }
         }
     }
+
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        if(intent.getBooleanExtra("logout",false)){
+            finishAffinity()
+        }
+        else{
+            super.onBackPressed()
+        }
+    }
 }
 
 @Preview(showBackground = true)

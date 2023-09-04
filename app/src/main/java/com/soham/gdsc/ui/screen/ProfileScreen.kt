@@ -4,6 +4,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Rect
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -14,6 +15,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonColors
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -36,6 +41,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.simonsickle.compose.barcodes.Barcode
 import com.simonsickle.compose.barcodes.BarcodeType
+import com.soham.gdsc.LogInSignupActivity
 import com.soham.gdsc.MainActivity
 import com.soham.gdsc.R
 import com.soham.gdsc.firebaseDB.FirestoreViewModel
@@ -259,7 +265,7 @@ fun ProfileScreen(userData: FirebaseUser, firebaseViewModel: FirestoreViewModel)
                 modifier = Modifier
                     .padding(16.dp)
                     .fillMaxWidth()
-                    .height(300.dp)
+                    .height( (200*list.size).dp )
             ){
                 for(event in list){
                     item {
@@ -267,6 +273,32 @@ fun ProfileScreen(userData: FirebaseUser, firebaseViewModel: FirestoreViewModel)
                     }
                 }
             }
+        }
+        Card(
+            backgroundColor = Color.White,
+            shape = RoundedCornerShape(100.dp),
+            border = BorderStroke(2.dp, LightRed),
+            modifier = Modifier
+                .padding(12.dp)
+                .width(200.dp)
+                .clickable {
+                    FirebaseAuth.getInstance().signOut()
+                    val intent = Intent(context, LogInSignupActivity::class.java)
+                    intent.flags =
+                        Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    intent.putExtra("logout",true)
+                    context.startActivity(intent)
+                    context.findActivity().finish()
+                }
+        ){
+            Text(
+                text = "Logout",
+                color = LightRed,
+                fontSize = 18.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .padding(16.dp)
+            )
         }
     }
 }
