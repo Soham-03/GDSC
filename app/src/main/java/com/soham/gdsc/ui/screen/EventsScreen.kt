@@ -11,10 +11,14 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Done
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,8 +42,10 @@ import com.soham.gdsc.navigation.BottomBarScreen
 import com.soham.gdsc.ui.component.EventSingleRow
 import com.soham.gdsc.ui.component.SearchBar
 import com.soham.gdsc.ui.theme.*
+import kotlinx.coroutines.launch
 import java.net.URL
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun EventsScreen(
     viewModel: FirestoreViewModel
@@ -50,186 +56,196 @@ fun EventsScreen(
         mutableStateOf(ArrayList<Event>())
     }
     list = state.isEventsSuccess
-    Column()
-    {
-        Text(
-            text = "Our Events",
-            color = textColorGrey,
-            fontSize = 24.sp,
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .padding(top = 12.dp)
-                .fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(20.dp))
-        SearchBar()
-        Spacer(modifier = Modifier.height(8.dp))
-        var selectedUpcoming by remember{ mutableStateOf(true) }
-        var selectedPast by remember{ mutableStateOf(false) }
-        Row(
-            modifier = Modifier
-                .padding(horizontal = 16.dp, vertical = 6.dp)
-                .wrapContentWidth()
-                .align(Alignment.End)
-        ){
-            Card(
-                backgroundColor = if(selectedUpcoming){ Yellow }else{ LightBlue },
-                shape = RoundedCornerShape(20.dp),
-                border = BorderStroke(2.dp, Color.Black),
-                modifier = Modifier
-                    .clip(RoundedCornerShape(20.dp))
-                    .clickable {
-                        if (!selectedUpcoming) {
-                            list = filterUpcoming(state)
-                            selectedUpcoming = true
-                            selectedPast = false
-                        }
-                    }
-                    .padding(start = 16.dp)
-                    .wrapContentWidth()
-            )
-            {
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                )
-                {
-                    AnimatedVisibility(visible = selectedUpcoming) {
-                        Image(
-                            imageVector = Icons.Outlined.Done,
-                            contentDescription = "Chip Selected",
-                            modifier = Modifier
-                                .padding(start = 8.dp)
-                                .size(24.dp)
-                        )
-                    }
-                    Text(
-                        text = "Upcoming Events",
-                        fontSize = 14.sp,
-                        modifier = Modifier
-                            .padding(8.dp)
-                    )
-                }
-            }
-            //2
-            Card(
-                backgroundColor = if(selectedPast){ Yellow }else{ LightBlue },
-                shape = RoundedCornerShape(20.dp),
-                border = BorderStroke(2.dp, Color.Black),
-                modifier = Modifier
-                    .clip(RoundedCornerShape(20.dp))
-                    .clickable {
-                        if (!selectedPast) {
-                            list = filterPast(state)
-                            selectedPast = true
-                            selectedUpcoming = false
-                        }
-                    }
-                    .padding(start = 16.dp)
-                    .wrapContentWidth()
-            )
-            {
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                )
-                {
-                    AnimatedVisibility(visible = selectedPast) {
-                        Image(
-                            imageVector = Icons.Outlined.Done,
-                            contentDescription = "Chip Selected",
-                            modifier = Modifier
-                                .padding(start = 8.dp)
-                                .size(24.dp)
-                        )
-                    }
-                    Text(
-                        text = "Past Events",
-                        fontSize = 14.sp,
-                        modifier = Modifier
-                            .padding(8.dp)
-                    )
-                }
-            }
+    val coroutineScope = rememberCoroutineScope()
+    val pullRefreshState = rememberPullRefreshState(refreshing = state.isEventRefreshing, onRefresh = {
+        coroutineScope.launch{
+            viewModel.getAllEventsRefresh()
         }
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(14.dp),
-            modifier = Modifier
-                .padding(horizontal = 16.dp)
-        )
+    })
+    Box(
+        modifier = Modifier
+            .pullRefresh(pullRefreshState)
+    ){
+        Column()
         {
-            if(selectedPast){
-                val pastList = filterPast(state)
-                if(pastList.isNotEmpty()){
-                    for(event in pastList){
-                        item {
-                            EventSingleRow(
-                                backgroundColor = cardBackgroundGreen,
-                                eventImage = event.eventImage,
-                                eventName = event.eventName,
-                                eventDate = event.eventDate,
-                                eventTime = event.eventTime,
-                                onEventClick = {
-                                    Toast.makeText(context, "Event is over now.", Toast.LENGTH_SHORT).show()
-                                }
+            Text(
+                text = "Our Events",
+                color = textColorGrey,
+                fontSize = 24.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .padding(top = 12.dp)
+                    .fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(20.dp))
+            SearchBar()
+            Spacer(modifier = Modifier.height(8.dp))
+            var selectedUpcoming by remember{ mutableStateOf(true) }
+            var selectedPast by remember{ mutableStateOf(false) }
+            Row(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp, vertical = 6.dp)
+                    .wrapContentWidth()
+                    .align(Alignment.End)
+            ){
+                Card(
+                    backgroundColor = if(selectedUpcoming){ Yellow }else{ LightBlue },
+                    shape = RoundedCornerShape(20.dp),
+                    border = BorderStroke(2.dp, Color.Black),
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(20.dp))
+                        .clickable {
+                            if (!selectedUpcoming) {
+                                list = filterUpcoming(state)
+                                selectedUpcoming = true
+                                selectedPast = false
+                            }
+                        }
+                        .padding(start = 16.dp)
+                        .wrapContentWidth()
+                )
+                {
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    )
+                    {
+                        AnimatedVisibility(visible = selectedUpcoming) {
+                            Image(
+                                imageVector = Icons.Outlined.Done,
+                                contentDescription = "Chip Selected",
+                                modifier = Modifier
+                                    .padding(start = 8.dp)
+                                    .size(24.dp)
                             )
                         }
+                        Text(
+                            text = "Upcoming Events",
+                            fontSize = 14.sp,
+                            modifier = Modifier
+                                .padding(8.dp)
+                        )
                     }
                 }
-                else{
-                    item {
+                //2
+                Card(
+                    backgroundColor = if(selectedPast){ Yellow }else{ LightBlue },
+                    shape = RoundedCornerShape(20.dp),
+                    border = BorderStroke(2.dp, Color.Black),
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(20.dp))
+                        .clickable {
+                            if (!selectedPast) {
+                                list = filterPast(state)
+                                selectedPast = true
+                                selectedUpcoming = false
+                            }
+                        }
+                        .padding(start = 16.dp)
+                        .wrapContentWidth()
+                )
+                {
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    )
+                    {
+                        AnimatedVisibility(visible = selectedPast) {
+                            Image(
+                                imageVector = Icons.Outlined.Done,
+                                contentDescription = "Chip Selected",
+                                modifier = Modifier
+                                    .padding(start = 8.dp)
+                                    .size(24.dp)
+                            )
+                        }
                         Text(
-                            text = "No Events to show here :(",
-                            fontSize = 24.sp,
-                            color = textColorGrey,
-                            fontWeight = FontWeight.Bold
+                            text = "Past Events",
+                            fontSize = 14.sp,
+                            modifier = Modifier
+                                .padding(8.dp)
                         )
                     }
                 }
             }
-            else{
-                val upcomingList = filterUpcoming(state)
-                if(upcomingList.isNotEmpty()){
-                    for(event in upcomingList){
-                        item {
-                            EventSingleRow(
-                                backgroundColor = cardBackgroundGreen,
-                                eventImage = event.eventImage,
-                                eventName = event.eventName,
-                                eventDate = event.eventDate,
-                                eventTime = event.eventTime,
-                                onEventClick = {
-                                    val intent = Intent(context, EventInfoActivity::class.java)
-                                    event.apply{
-                                        intent.putExtra("eventId",eventId)
-                                        intent.putExtra("eventName",eventName)
-                                        intent.putExtra("eventImage",eventImage)
-                                        intent.putExtra("eventDate",eventDate)
-                                        intent.putExtra("eventTime",eventTime)
-                                        intent.putExtra("eventTags",eventTags)
-                                        intent.putExtra("eventAbout",eventAbout)
-                                        intent.putExtra("quizStatus",quizStatus)
-                                        intent.putExtra("upcoming",upcoming)
-                                        intent.putExtra("eventLink",eventLink)
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(14.dp),
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+            )
+            {
+                if(selectedPast){
+                    val pastList = filterPast(state)
+                    if(pastList.isNotEmpty()){
+                        for(event in pastList){
+                            item {
+                                EventSingleRow(
+                                    backgroundColor = cardBackgroundGreen,
+                                    eventImage = event.eventImage,
+                                    eventName = event.eventName,
+                                    eventDate = event.eventDate,
+                                    eventTime = event.eventTime,
+                                    onEventClick = {
+                                        Toast.makeText(context, "Event is over now.", Toast.LENGTH_SHORT).show()
                                     }
-                                    context.startActivity(intent)
-                                }
+                                )
+                            }
+                        }
+                    }
+                    else{
+                        item {
+                            Text(
+                                text = "No Events to show here :(",
+                                fontSize = 24.sp,
+                                color = textColorGrey,
+                                fontWeight = FontWeight.Bold
                             )
                         }
                     }
                 }
                 else{
-                    item {
-                        Text(
-                            text = "No Events to show here :(",
-                            fontSize = 24.sp,
-                            color = textColorGrey,
-                            fontWeight = FontWeight.Bold,
-                            textAlign = TextAlign.Center
-                        )
+                    val upcomingList = filterUpcoming(state)
+                    if(upcomingList.isNotEmpty()){
+                        for(event in upcomingList){
+                            item {
+                                EventSingleRow(
+                                    backgroundColor = cardBackgroundGreen,
+                                    eventImage = event.eventImage,
+                                    eventName = event.eventName,
+                                    eventDate = event.eventDate,
+                                    eventTime = event.eventTime,
+                                    onEventClick = {
+                                        val intent = Intent(context, EventInfoActivity::class.java)
+                                        event.apply{
+                                            intent.putExtra("eventId",eventId)
+                                            intent.putExtra("eventName",eventName)
+                                            intent.putExtra("eventImage",eventImage)
+                                            intent.putExtra("eventDate",eventDate)
+                                            intent.putExtra("eventTime",eventTime)
+                                            intent.putExtra("eventTags",eventTags)
+                                            intent.putExtra("eventAbout",eventAbout)
+                                            intent.putExtra("quizStatus",quizStatus)
+                                            intent.putExtra("upcoming",upcoming)
+                                            intent.putExtra("eventLink",eventLink)
+                                        }
+                                        context.startActivity(intent)
+                                    }
+                                )
+                            }
+                        }
+                    }
+                    else{
+                        item {
+                            Text(
+                                text = "No Events to show here :(",
+                                fontSize = 24.sp,
+                                color = textColorGrey,
+                                fontWeight = FontWeight.Bold,
+                                textAlign = TextAlign.Center
+                            )
+                        }
                     }
                 }
-            }
 
 //            for (i in 0..10){
 //                item {
@@ -247,11 +263,20 @@ fun EventsScreen(
 //                    )
 //                }
 //            }
-            item { 
-                Spacer(modifier = Modifier.height(100.dp))
+                item {
+                    Spacer(modifier = Modifier.height(100.dp))
+                }
             }
         }
+        PullRefreshIndicator(
+            refreshing = state.isEventRefreshing,
+            state = pullRefreshState,
+            modifier = Modifier.align(Alignment.TopCenter),
+            backgroundColor = Color.White,
+            contentColor = Color.Black
+        )
     }
+
 }
 
 fun filterPast(state: FirebaseState): ArrayList<Event> {

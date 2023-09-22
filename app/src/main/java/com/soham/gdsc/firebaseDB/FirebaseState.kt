@@ -13,12 +13,14 @@ data class FirebaseState(
     val isEventsLoading: Boolean = true,
     val isEventsSuccess: ArrayList<Event> = ArrayList(),
     val isEventFailed: String = "",
+    val isEventRefreshing: Boolean = false,
     //
     val registeredEventExistStatus: Boolean = false,
     //
     val eventRegistrationStatus: String = "",
     //
     val isLeaderBoardDataSuccess: ArrayList<LeaderBoardData> = ArrayList(),
+    val isLeaderBoardRefreshing: Boolean = false,
     //
     val isFlagShipEventLoading: Boolean = true,
     val isFlagShipEventSuccess: ArrayList<FlagShipEvent> = ArrayList(),
@@ -27,6 +29,7 @@ data class FirebaseState(
     val isBestOfMonthSuccess: ArrayList<String> = ArrayList(),
 
     val isProblemStatementSuccess: Problem? = null,
+    val isProblemStatementRefreshing: Boolean = false,
 
     val isEventsAttendedSuccess: ArrayList<AttendedEvent> = ArrayList()
 

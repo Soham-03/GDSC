@@ -85,22 +85,37 @@ fun LeaderboardComponent(
                     contentDescription = "profile image",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
-                        .padding(end = 12.dp)
+                        .padding(end = 8.dp)
                         .size(50.dp)
                         .clip(CircleShape)
-                )
-                Text(
-                    text = userName,
-                    fontSize = 20.sp,
-                    color = Color.Black,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier
-                        .padding(start = 10.dp, end = 10.dp)
-                        .widthIn(max = 160.dp)
+                        .weight(1f)
                 )
                 Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                    .padding(start = 8.dp, end = 8.dp)
+                    .weight(2f)
+                ){
+                    Text(
+                        text = userName,
+                        fontSize = 20.sp,
+                        color = Color.Black,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    Text(
+                        text = userClass,
+                        fontSize = 14.sp,
+                        color = Color.Black,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+                
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .weight(1f)
                 )
                 {
                     Text(
@@ -122,5 +137,5 @@ fun LeaderboardComponent(
 @Preview
 @Composable
 fun LeaderboardCompPreview(){
-    LeaderboardComponent(userName = "adadasdasdasdasdasdasdazdasdasdawdadawdasd", userImage = "", tags = "69", "", textColorGrey,"1")
+    LeaderboardComponent(userName = "adadasdasdasdasdasdasdazdasdasdawdadawdasd", userImage = "", tags = "169", "", textColorGrey,"1")
 }

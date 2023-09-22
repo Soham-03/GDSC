@@ -107,13 +107,22 @@ class FirestoreRepo(
         return result
     }
 
-    suspend fun getLeaderBoardTop10(): ArrayList<LeaderBoardData>{
+    suspend fun getLeaderBoardTop10(): ArrayList<LeaderBoardData> {
         val list = ArrayList<LeaderBoardData>()
-        val docs = db.collection("users").orderBy("tags",Query.Direction.DESCENDING).limit(10).get().await()
-        for(doc in docs){
-            list.add(LeaderBoardData(tags = doc["tags"].toString(), userName = doc["userName"].toString(), userImage = doc["userImage"].toString(), userClass = doc["userClass"].toString()))
+        val docs =
+            db.collection("users").orderBy("tags", Query.Direction.DESCENDING).limit(10).get()
+                .await()
+        for (doc in docs) {
+            list.add(
+                LeaderBoardData(
+                    tags = doc["tags"].toString(),
+                    userName = doc["userName"].toString(),
+                    userImage = doc["userImage"].toString(),
+                    userClass = doc["userClass"].toString()
+                )
+            )
         }
-        return list
+        return ArrayList(list.sortedByDescending { it.tags.toInt() })
     }
 
     suspend fun getFlagshipEvents(): ArrayList<FlagShipEvent>{

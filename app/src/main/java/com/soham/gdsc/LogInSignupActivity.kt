@@ -83,7 +83,7 @@ class LogInSignupActivity : ComponentActivity() {
 //                    }
                         LaunchedEffect(key1 = state.isSignInSuccessful){
                             if(state.isSignInSuccessful || auth.currentUser!=null){
-                                Toast.makeText(applicationContext, "Sign In Successful", Toast.LENGTH_SHORT).show()
+//                                Toast.makeText(applicationContext, "Sign In Successful", Toast.LENGTH_SHORT).show()
                                 val intent = Intent(this@LogInSignupActivity, MainActivity::class.java)
                                 startActivity(intent)
                                 finish()

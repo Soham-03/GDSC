@@ -119,6 +119,7 @@ fun ProblemStatement(problem: Problem?){
                 text = "We know you're smart but, read this to know your problem more :)",
                 fontSize = 18.sp,
                 color = Yellow,
+                textAlign = TextAlign.Center,
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
             )
@@ -167,6 +168,7 @@ fun ProblemStatement(problem: Problem?){
                         modifier = Modifier
                             .size(60.dp)
                     )
+                    
                 }
             }
         }

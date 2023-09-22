@@ -1,5 +1,7 @@
 package com.soham.gdsc.firebaseDB
 
+import android.os.Handler
+import android.os.Looper
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseUser
 import com.soham.gdsc.model.Event
@@ -25,8 +27,21 @@ class FirestoreViewModel(private val firestoreRepo: FirestoreRepo): ViewModel() 
         }
         else{
             _state.value = _state.value.copy(isEventsSuccess = eventsData)
+            _state.value = _state.value.copy(isEventsLoading = false)
         }
-        _state.value = _state.value.copy(isEventsLoading = false)
+    }
+    suspend fun getAllEventsRefresh(){
+        _state.value = _state.value.copy(isEventRefreshing = true)
+        val eventsData = firestoreRepo.getAllEvents()
+        if(eventsData.isEmpty()){
+            _state.value = _state.value.copy(isEventFailed = "Failed")
+        }
+        else{
+            _state.value = _state.value.copy(isEventsSuccess = eventsData)
+            Handler(Looper.getMainLooper()).postDelayed({
+                _state.value = _state.value.copy(isEventRefreshing = false)
+            }, 1000)
+        }
     }
 
     suspend fun registerForEvent(eventId: String, uid:String, eventName: String, eventTags: String){
@@ -49,6 +64,17 @@ class FirestoreViewModel(private val firestoreRepo: FirestoreRepo): ViewModel() 
         _state.value = _state.value.copy(isLeaderBoardDataSuccess = status)
     }
 
+    suspend fun getLeaderboardTop10Refresh(){
+        _state.value = _state.value.copy(isLeaderBoardRefreshing = true)
+        val status = firestoreRepo.getLeaderBoardTop10()
+        if(status.isNotEmpty()){
+            _state.value = _state.value.copy(isLeaderBoardDataSuccess = status)
+            Handler(Looper.getMainLooper()).postDelayed({
+                _state.value = _state.value.copy(isLeaderBoardRefreshing = false)
+            }, 1000)
+        }
+    }
+
     suspend fun getFlagshipEvents(){
         _state.value = _state.value.copy(isFlagShipEventLoading = true)
         val status = firestoreRepo.getFlagshipEvents()
@@ -69,6 +95,15 @@ class FirestoreViewModel(private val firestoreRepo: FirestoreRepo): ViewModel() 
     suspend fun getProblemStatement(){
         val status = firestoreRepo.getProblem()
         _state.value = _state.value.copy(isProblemStatementSuccess = status)
+        println("Link"+status)
+    }
+
+    suspend fun getProblemStatementRefresh(){
+        _state.value = _state.value.copy(isProblemStatementRefreshing = true)
+        val status = firestoreRepo.getProblem()
+        Handler(Looper.getMainLooper()).postDelayed({
+            _state.value = _state.value.copy(isProblemStatementRefreshing = false)
+        }, 1000)
         println("Link"+status)
     }
 

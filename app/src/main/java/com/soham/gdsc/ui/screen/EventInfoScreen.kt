@@ -1,6 +1,7 @@
 package com.soham.gdsc.ui.screen
 
 import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -13,9 +14,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ModifierInfo
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -23,18 +24,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.soham.gdsc.MainActivity
 import com.soham.gdsc.R
 import com.soham.gdsc.firebaseDB.FirestoreRepo
 import com.soham.gdsc.firebaseDB.FirestoreViewModel
-import com.soham.gdsc.model.Event
 import com.soham.gdsc.ui.component.EventSingleRow
 import com.soham.gdsc.ui.component.RSVPButton
-import com.soham.gdsc.ui.component.RSVPButtonPreview
 import com.soham.gdsc.ui.theme.cardBackgroundGreen
 import com.soham.gdsc.ui.theme.textColorGrey
+import kotlinx.coroutines.launch
 
 @Composable
 fun EventInfoScreen(
@@ -52,6 +51,15 @@ fun EventInfoScreen(
     val context = LocalContext.current
     val userId = FirebaseAuth.getInstance().currentUser!!.uid
     val state by viewModel.state.collectAsState()
+    val coroutineScope = rememberCoroutineScope()
+    val openLink: () -> Unit = {
+        coroutineScope.launch {
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                data = Uri.parse(eventLink)
+            }
+            context.startActivity(intent)
+        }
+    }
     LaunchedEffect(Unit){
         viewModel.checkEventInRegisteredList(eventId, userId)
     }
@@ -219,7 +227,7 @@ fun EventInfoScreen(
                     .weight(0.2f)
             )
         }
-        RSVPButton(viewModel, state, eventId, userId, eventName, eventTags, eventLink)
+        RSVPButton(viewModel, state, eventId, userId, eventName, eventTags, eventLink, context, openLink)
     }
 }
 
