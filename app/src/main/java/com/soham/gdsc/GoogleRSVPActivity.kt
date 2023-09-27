@@ -3,11 +3,16 @@ package com.soham.gdsc
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.view.ViewGroup
+import android.webkit.WebView
+import android.webkit.WebViewClient
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.viewinterop.AndroidView
 import com.soham.gdsc.ui.theme.GDSCTheme
 
 class GoogleRSVPActivity : ComponentActivity() {
@@ -17,13 +22,22 @@ class GoogleRSVPActivity : ComponentActivity() {
             GDSCTheme {
                 // A surface container using the 'background' color from the theme
                 val url = intent.getStringExtra("url")
-
-                if (url != null) {
-                    // Create a new intent to open the URL
-//                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-//                        startActivity(intent)
-//                        // Handle any exceptions
-
+                if(url!=null){
+                    AndroidView(factory = {
+                        WebView(it).apply {
+                            layoutParams = ViewGroup.LayoutParams(
+                                ViewGroup.LayoutParams.MATCH_PARENT,
+                                ViewGroup.LayoutParams.MATCH_PARENT
+                            )
+                            webViewClient = WebViewClient()
+                            loadUrl(url)
+                        }
+                    }, update = {
+                        it.loadUrl(url)
+                    })
+                }
+                else{
+                    Toast.makeText(this@GoogleRSVPActivity, "Invalid Url", Toast.LENGTH_SHORT).show()
                 }
             }
         }

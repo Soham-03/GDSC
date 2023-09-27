@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
+import androidx.compose.material3.MenuDefaults
+import androidx.compose.material3.MenuItemColors
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,8 +37,9 @@ import com.soham.gdsc.firebaseDB.FirestoreViewModel
 import com.soham.gdsc.ui.theme.*
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun SignInScreen(
+fun  SignInScreen(
     state: SignedInState,
     onSignInClick:() -> Unit
 ){
@@ -139,7 +142,7 @@ fun SignInScreen(
                         OutlinedTextField(
                             value = phoneNo,
                             onValueChange = {
-                                phoneNo = it
+                                if (it.text.length <= 10) phoneNo = it
                             },
                             shape = RoundedCornerShape(30.dp),
                             label = {
@@ -161,32 +164,69 @@ fun SignInScreen(
                                 .fillMaxWidth()
                                 .align(Alignment.CenterHorizontally)
                         )
-                        OutlinedTextField(
-                            value = collegeName,
-                            onValueChange = {
-                                collegeName = it
-                            },
-                            shape = RoundedCornerShape(30.dp),
-                            label = {
-                                Text(
-                                    text = "Your College?",
-                                    color = textColorGrey,
-                                )
-                            },
-                            colors = TextFieldDefaults.outlinedTextFieldColors(
-                                textColor = textColorGrey,
-                                focusedBorderColor = LightBlue,
-                                unfocusedBorderColor = textColorGrey
-                            ),
-                            keyboardOptions = KeyboardOptions(
-                                keyboardType = KeyboardType.Text
-                            ),
+                        val coffeeDrinks = arrayOf("FE COMPS A", "FE COMPS B", "FE AIDS", "FE ECS", "SE COMPS A", "SE COMPS B", "SE AIDS", "SE ECS", "TE COMPS A", "TE COMPS B", "TE AIDS", "TE ECS", "BE COMPS A", "BE COMPS B", "BE AIDS", "BE ECS")
+                        var expanded by remember { mutableStateOf(false) }
+                        Box(
                             modifier = Modifier
                                 .padding(top = 12.dp)
                                 .fillMaxWidth()
-                                .align(Alignment.CenterHorizontally)
-                        )
+                        ){
+                            ExposedDropdownMenuBox(
+                                expanded = expanded,
+                                onExpandedChange = {
+                                    expanded = !expanded
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
 
+                            ){
+                                OutlinedTextField(
+                                    value = collegeName,
+                                    onValueChange = {
+                                    },
+                                    shape = RoundedCornerShape(30.dp),
+                                    label = {
+                                        Text(
+                                            text = "Your Class",
+                                            color = textColorGrey,
+                                        )
+                                    },
+                                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                                        textColor = textColorGrey,
+                                        focusedBorderColor = LightBlue,
+                                        unfocusedBorderColor = textColorGrey,
+                                        trailingIconColor = Color.Black
+                                    ),
+                                    keyboardOptions = KeyboardOptions(
+                                        keyboardType = KeyboardType.Text
+                                    ),
+                                    enabled = false,
+                                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                )
+                                ExposedDropdownMenu(
+                                    expanded = expanded,
+                                    onDismissRequest = { expanded = false },
+                                    modifier = Modifier
+                                        .background(Color.White),
+                                ) {
+                                    coffeeDrinks.forEach { item ->
+                                        androidx.compose.material3.DropdownMenuItem(
+                                            text = { Text(text = item) },
+                                            onClick = {
+                                                collegeName = TextFieldValue(item)
+                                                expanded = false
+                                                Toast.makeText(context, item, Toast.LENGTH_SHORT).show()
+                                            },
+                                            colors = MenuDefaults.itemColors(
+                                                textColor = textColorGrey
+                                            )
+                                            )
+                                    }
+                                }
+                            }
+                        }
                         Box(
                             modifier = Modifier
                                 .padding(top = 12.dp)

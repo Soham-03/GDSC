@@ -157,7 +157,7 @@ fun ProblemStatement(problem: Problem?){
                 )
                 {
                     Text(
-                        text = "Click to Submit \nand get 50 tags",
+                        text = "Submit Solution",
                         textAlign = TextAlign.Center,
                         modifier = Modifier
                             .padding(10.dp)

@@ -75,7 +75,9 @@ fun RSVPButton(
                 }
                 else if(text == "Waiting for confirmation"){
                     Toast.makeText(context, "Have you confirmed your RSVP from the link, If done just sit back and relax :)", Toast.LENGTH_SHORT).show()
-                    CustomTabsIntent.Builder().build().launchUrl(context, Uri.parse(eventLink))
+                    val intent = Intent(context, GoogleRSVPActivity::class.java)
+                    intent.putExtra("url",eventLink)
+                    context.startActivity(intent)
                 }
                 else{
                     viewModel.registerForEvent(eventId, uid, eventName = eventName, eventTags)

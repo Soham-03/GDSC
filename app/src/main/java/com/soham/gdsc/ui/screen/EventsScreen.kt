@@ -2,6 +2,7 @@ package com.soham.gdsc.ui.screen
 
 import android.content.Intent
 import android.content.Intent.FilterComparison
+import android.text.TextUtils
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.*
@@ -13,9 +14,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
+import androidx.compose.material.TextField
+import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Done
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
@@ -26,6 +30,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -55,13 +60,17 @@ fun EventsScreen(
     var list by remember {
         mutableStateOf(ArrayList<Event>())
     }
-    list = state.isEventsSuccess
+    val filteredEvents = remember { mutableStateOf(ArrayList<Event>()) }
+    var change by remember{
+        mutableStateOf(false)
+    }
     val coroutineScope = rememberCoroutineScope()
     val pullRefreshState = rememberPullRefreshState(refreshing = state.isEventRefreshing, onRefresh = {
         coroutineScope.launch{
             viewModel.getAllEventsRefresh()
         }
     })
+    var text by remember{ mutableStateOf(TextFieldValue(""))}
     Box(
         modifier = Modifier
             .pullRefresh(pullRefreshState)
@@ -78,7 +87,64 @@ fun EventsScreen(
                     .fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(20.dp))
-            SearchBar()
+//            SearchBar()
+            Box(modifier = Modifier.padding(horizontal = 16.dp))
+            {
+                filteredEvents.value = if(text.text.isEmpty() || text.text.isBlank()){
+                    state.isEventsSuccess
+                } else{
+                    search(text, list)
+                }
+                Box(modifier = Modifier
+                    .padding(top = 8.dp)
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .border(2.dp, Color.Black, RoundedCornerShape(30.dp))
+                    .background(Yellow, RoundedCornerShape(30.dp))
+                )
+                TextField(
+                    value = text,
+                    onValueChange = { te->
+                        text = te
+                        filteredEvents.value = if(text.text.isEmpty() || text.text.isBlank()){
+                            change = false
+                            list
+                        } else{
+                            change = true
+                            search(text, list)
+                        }
+//                        list = filteredEvents.value
+                    },
+                    leadingIcon = {
+                        Image(
+                            imageVector = Icons.Outlined.Search,
+                            contentDescription = "Search Image",
+                            modifier = Modifier.align(
+                                Alignment.Center
+                            )
+                                .clickable {
+                                    list = search(text, list)
+                                }
+                        )
+                    },
+                    placeholder = {
+                        Text(text = "Search", color = Color.Black)
+                    },
+                    colors = TextFieldDefaults.textFieldColors(
+                        textColor = textColorGrey,
+                        backgroundColor = Color.White,
+                        leadingIconColor = Color.Black,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        cursorColor = Color.Black
+                    ),
+                    shape = RoundedCornerShape(30.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp)
+                        .border(2.dp, Color.Black, RoundedCornerShape(30.dp))
+                )
+            }
             Spacer(modifier = Modifier.height(8.dp))
             var selectedUpcoming by remember{ mutableStateOf(true) }
             var selectedPast by remember{ mutableStateOf(false) }
@@ -176,76 +242,179 @@ fun EventsScreen(
             {
                 if(selectedPast){
                     val pastList = filterPast(state)
-                    if(pastList.isNotEmpty()){
+                    var printedOnce = false
+                    if(change) {
                         for(event in pastList){
-                            item {
-                                EventSingleRow(
-                                    backgroundColor = cardBackgroundGreen,
-                                    eventImage = event.eventImage,
-                                    eventName = event.eventName,
-                                    eventDate = event.eventDate,
-                                    eventTime = event.eventTime,
-                                    onEventClick = {
-                                        Toast.makeText(context, "Event is over now.", Toast.LENGTH_SHORT).show()
-                                    }
-                                )
-                            }
-                        }
-                    }
-                    else{
-                        item {
-                            Text(
-                                text = "No Events to show here :(",
-                                fontSize = 24.sp,
-                                color = textColorGrey,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    }
-                }
-                else{
-                    val upcomingList = filterUpcoming(state)
-                    if(upcomingList.isNotEmpty()){
-                        for(event in upcomingList){
-                            item {
-                                EventSingleRow(
-                                    backgroundColor = cardBackgroundGreen,
-                                    eventImage = event.eventImage,
-                                    eventName = event.eventName,
-                                    eventDate = event.eventDate,
-                                    eventTime = event.eventTime,
-                                    onEventClick = {
-                                        val intent = Intent(context, EventInfoActivity::class.java)
-                                        event.apply{
-                                            intent.putExtra("eventId",eventId)
-                                            intent.putExtra("eventName",eventName)
-                                            intent.putExtra("eventImage",eventImage)
-                                            intent.putExtra("eventDate",eventDate)
-                                            intent.putExtra("eventTime",eventTime)
-                                            intent.putExtra("eventTags",eventTags)
-                                            intent.putExtra("eventAbout",eventAbout)
-                                            intent.putExtra("quizStatus",quizStatus)
-                                            intent.putExtra("upcoming",upcoming)
-                                            intent.putExtra("eventLink",eventLink)
+                            if(event.eventName.contains(text.text, true)){
+                                printedOnce = true
+                                filteredEvents.value.add(event)
+                                println("Filtered: "+event.eventName)
+                                item {
+                                    EventSingleRow(
+                                        backgroundColor = cardBackgroundGreen,
+                                        eventImage = event.eventImage,
+                                        eventName = event.eventName,
+                                        eventDate = event.eventDate,
+                                        eventTime = event.eventTime,
+                                        onEventClick = {
+                                            val intent = Intent(context, EventInfoActivity::class.java)
+                                            event.apply{
+                                                intent.putExtra("eventId",eventId)
+                                                intent.putExtra("eventName",eventName)
+                                                intent.putExtra("eventImage",eventImage)
+                                                intent.putExtra("eventDate",eventDate)
+                                                intent.putExtra("eventTime",eventTime)
+                                                intent.putExtra("eventTags",eventTags)
+                                                intent.putExtra("eventAbout",eventAbout)
+                                                intent.putExtra("quizStatus",quizStatus)
+                                                intent.putExtra("upcoming",upcoming)
+                                                intent.putExtra("eventLink",eventLink)
+                                            }
+                                            context.startActivity(intent)
                                         }
-                                        context.startActivity(intent)
+                                    )
+                                }
+                            }
+                            else{
+                                if(!printedOnce){
+                                    printedOnce = true
+                                    item {
+                                        Text(
+                                            text = "Error 404, Not found",
+                                            fontSize = 24.sp,
+                                            color = textColorGrey,
+                                            fontWeight = FontWeight.Bold,
+                                            textAlign = TextAlign.Center
+                                        )
                                     }
-                                )
+                                }
                             }
                         }
                     }
                     else{
-                        item {
-                            Text(
-                                text = "No Events to show here :(",
-                                fontSize = 24.sp,
-                                color = textColorGrey,
-                                fontWeight = FontWeight.Bold,
-                                textAlign = TextAlign.Center
-                            )
+                        if(pastList.isNotEmpty()){
+                            for(event in pastList){
+                                item {
+                                    EventSingleRow(
+                                        backgroundColor = cardBackgroundGreen,
+                                        eventImage = event.eventImage,
+                                        eventName = event.eventName,
+                                        eventDate = event.eventDate,
+                                        eventTime = event.eventTime,
+                                        onEventClick = {
+                                            Toast.makeText(context, "Event is over now.", Toast.LENGTH_SHORT).show()
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                        else{
+                            item {
+                                Text(
+                                    text = "No Events to show here :(",
+                                    fontSize = 24.sp,
+                                    color = textColorGrey,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
                         }
                     }
                 }
+                else if(selectedUpcoming){
+                    val upcomingList = filterUpcoming(state)
+                    var printedOnce = false
+                    if(change) {
+                            for(event in upcomingList){
+                                if(event.eventName.contains(text.text, true)){
+                                    printedOnce = true
+                                    filteredEvents.value.add(event)
+                                    println("Filtered: "+event.eventName)
+                                    item {
+                                        EventSingleRow(
+                                            backgroundColor = cardBackgroundGreen,
+                                            eventImage = event.eventImage,
+                                            eventName = event.eventName,
+                                            eventDate = event.eventDate,
+                                            eventTime = event.eventTime,
+                                            onEventClick = {
+                                                val intent = Intent(context, EventInfoActivity::class.java)
+                                                event.apply{
+                                                    intent.putExtra("eventId",eventId)
+                                                    intent.putExtra("eventName",eventName)
+                                                    intent.putExtra("eventImage",eventImage)
+                                                    intent.putExtra("eventDate",eventDate)
+                                                    intent.putExtra("eventTime",eventTime)
+                                                    intent.putExtra("eventTags",eventTags)
+                                                    intent.putExtra("eventAbout",eventAbout)
+                                                    intent.putExtra("quizStatus",quizStatus)
+                                                    intent.putExtra("upcoming",upcoming)
+                                                    intent.putExtra("eventLink",eventLink)
+                                                }
+                                                context.startActivity(intent)
+                                            }
+                                        )
+                                    }
+                                }
+                                else{
+                                    if(!printedOnce){
+                                        printedOnce = true
+                                        item {
+                                            Text(
+                                                text = "Error 404, Not found",
+                                                fontSize = 24.sp,
+                                                color = textColorGrey,
+                                                fontWeight = FontWeight.Bold,
+                                                textAlign = TextAlign.Center
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                    }
+                    else {
+                        if(upcomingList.isNotEmpty()){
+                            for(event in upcomingList){
+                                item {
+                                    EventSingleRow(
+                                        backgroundColor = cardBackgroundGreen,
+                                        eventImage = event.eventImage,
+                                        eventName = event.eventName,
+                                        eventDate = event.eventDate,
+                                        eventTime = event.eventTime,
+                                        onEventClick = {
+                                            val intent = Intent(context, EventInfoActivity::class.java)
+                                            event.apply{
+                                                intent.putExtra("eventId",eventId)
+                                                intent.putExtra("eventName",eventName)
+                                                intent.putExtra("eventImage",eventImage)
+                                                intent.putExtra("eventDate",eventDate)
+                                                intent.putExtra("eventTime",eventTime)
+                                                intent.putExtra("eventTags",eventTags)
+                                                intent.putExtra("eventAbout",eventAbout)
+                                                intent.putExtra("quizStatus",quizStatus)
+                                                intent.putExtra("upcoming",upcoming)
+                                                intent.putExtra("eventLink",eventLink)
+                                            }
+                                            context.startActivity(intent)
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                        else{
+                            item {
+                                Text(
+                                    text = "No Events to show here :(",
+                                    fontSize = 24.sp,
+                                    color = textColorGrey,
+                                    fontWeight = FontWeight.Bold,
+                                    textAlign = TextAlign.Center
+                                )
+                            }
+                        }
+                    }
+                }
+
 
 //            for (i in 0..10){
 //                item {
@@ -301,6 +470,22 @@ fun filterUpcoming(state: FirebaseState): ArrayList<Event> {
         }
     }
     return upcomingList
+}
+
+fun search(textFieldValue: TextFieldValue, listOfEvents: ArrayList<Event>): ArrayList<Event> {
+    var list = ArrayList<Event>()
+    if(!TextUtils.isEmpty(textFieldValue.text)){
+        for(event in listOfEvents){
+            if(event.eventName.contains(textFieldValue.text, true)){
+                list.add(event)
+            }
+        }
+    }
+    else{
+        list = listOfEvents
+    }
+    println(list)
+    return list
 }
 
 @Preview

@@ -31,9 +31,9 @@ class FirestoreRepo(
         val doc = db.collection("users").document(myuser.uid).get().await()
         val exists = doc.exists()
         if(!exists){
-            val hashMap = HashMap<String, String>()
-            hashMap["userClass"] = collegeName
-            hashMap["tags"] = "0"
+            val hashMap = HashMap<String, Any>()
+            hashMap["userClass"] = collegeName.toString()
+            hashMap["tags"] = 0
             hashMap["userName"] = myuser.displayName.toString()
             hashMap["userImage"] = myuser.photoUrl.toString()
             db.collection("users").document(myuser.uid)
@@ -68,7 +68,7 @@ class FirestoreRepo(
                     quizStatus = doc["quizStatus"] as Boolean,
                     upcoming = doc["upcoming"] as Boolean,
                     eventAbout = doc["eventAbout"].toString(),
-                    eventLink = doc["link"].toString()
+                    eventLink = doc["eventLink"].toString()
                 )
             )
             println("About"+doc["eventAbout"].toString())

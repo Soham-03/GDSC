@@ -158,7 +158,7 @@ fun HomeScreen(viewModel: FirestoreViewModel){
                     .fillMaxWidth()
             ) {
                 Text(
-                    text = "Best of Month",
+                    text = "Best of Week",
                     fontSize = 24.sp,
                 )
             }

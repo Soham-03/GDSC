@@ -92,12 +92,12 @@ fun ProfileScreen(userData: FirebaseUser, firebaseViewModel: FirestoreViewModel)
                             context.startActivity(intent)
                         }
                 )
-                Image(
-                    painter = painterResource(id = R.drawable.ic_question),
-                    contentDescription = "question ic",
-                    modifier = Modifier
-                        .size(30.dp)
-                )
+//                Image(
+//                    painter = painterResource(id = R.drawable.ic_question),
+//                    contentDescription = "question ic",
+//                    modifier = Modifier
+//                        .size(30.dp)
+//                )
             }
             Text(
                 text = "Your Profile",
