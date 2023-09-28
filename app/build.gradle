@@ -5,14 +5,14 @@ plugins {
 }
 
 android {
-    namespace 'com.soham.gdsc'
+    namespace 'com.gdsc.gdsc'
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.soham.gdsc"
+        applicationId "com.gdsc.gdsc"
         minSdk 21
         targetSdk 33
-        versionCode 1
+        versionCode 3
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -66,7 +66,7 @@ dependencies {
     //firebase auth
     implementation("com.google.firebase:firebase-auth-ktx")
     // Also add the dependency for the Google Play services library and specify its version
-    implementation("com.google.android.gms:play-services-auth:20.6.0")
+    implementation("com.google.android.gms:play-services-auth:20.7.0")
 
     //Coil Image Loader
     implementation("io.coil-kt:coil-compose:2.4.0")
