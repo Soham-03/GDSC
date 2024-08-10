@@ -41,9 +41,14 @@ import com.gdsc.gdsc.ui.theme.LightBlue
 import com.gdsc.gdsc.ui.theme.LightRed
 import com.gdsc.gdsc.ui.theme.Yellow
 import com.gdsc.gdsc.ui.theme.textColorGrey
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
 
 @Composable
-fun ProfileScreen(userData: FirebaseUser, firebaseViewModel: FirestoreViewModel){
+fun ProfileScreen(
+    userData: FirebaseUser,
+    firebaseViewModel: FirestoreViewModel,
+    googleLoginAuth: GoogleSignInClient
+){
     val context = LocalContext.current
     val uid = userData.uid
     var viewQr by remember {
@@ -273,12 +278,14 @@ fun ProfileScreen(userData: FirebaseUser, firebaseViewModel: FirestoreViewModel)
                 .width(200.dp)
                 .clickable {
                     FirebaseAuth.getInstance().signOut()
+                    googleLoginAuth.signOut()
                     val intent = Intent(context, LogInSignupActivity::class.java)
-                    intent.flags =
-                        Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                    intent.putExtra("logout",true)
+//                    intent.flags =
+//                        Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK
+//                    intent.putExtra("logout",true)
                     context.startActivity(intent)
-                    context.findActivity().finish()
+//                    context.findActivity().finish()
+                    context.findActivity().finishAffinity()
                 }
         ){
             Text(
@@ -292,6 +299,7 @@ fun ProfileScreen(userData: FirebaseUser, firebaseViewModel: FirestoreViewModel)
         }
     }
 }
+
 
 @Preview
 @Composable

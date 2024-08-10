@@ -48,7 +48,6 @@ fun BottomNavigation(viewModel: FirestoreViewModel){
             AnimatedVisibility(visible = !show) {
                 BottomBar(navController = navController)
             }
-
         }
     ) {it.calculateBottomPadding()
         BottomNavigationGraph(navController = navController, viewModel)

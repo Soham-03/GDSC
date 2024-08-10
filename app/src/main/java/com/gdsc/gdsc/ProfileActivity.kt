@@ -16,6 +16,9 @@ import com.gdsc.gdsc.firebaseDB.FirestoreViewModel
 import com.gdsc.gdsc.firebaseDB.FirestoreRepo
 import com.gdsc.gdsc.ui.screen.ProfileScreen
 import com.gdsc.gdsc.ui.theme.GDSCTheme
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 
 class ProfileActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,10 +37,18 @@ class ProfileActivity : ComponentActivity() {
                     LaunchedEffect(currentUser) {
                        firebaseViewModel.getUserData(currentUser!!.uid)
                     }
-                    ProfileScreen(currentUser!!, firebaseViewModel)
+                    ProfileScreen(currentUser!!, firebaseViewModel, getGoogleLoginAuth())
                 }
             }
         }
+    }
+
+    private fun getGoogleLoginAuth(): GoogleSignInClient {
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getString(R.string.web_client_id))
+            .requestEmail()
+            .build()
+        return GoogleSignIn.getClient(this, gso)
     }
 }
 

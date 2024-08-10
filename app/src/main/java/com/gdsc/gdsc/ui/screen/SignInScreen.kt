@@ -285,6 +285,7 @@ fun  SignInScreen(
                 shape = RoundedCornerShape(30.dp),
                 border = BorderStroke(2.dp, Color.Black),
                 onClick = {
+                    Global.login = true
                     onSignInClick.invoke()
                 },
                 colors = ButtonDefaults.buttonColors(
