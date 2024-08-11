@@ -67,6 +67,7 @@ fun LeaderBoardScreen(viewModel: FirestoreViewModel){
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
+
                 )
             }
             LazyColumn(
